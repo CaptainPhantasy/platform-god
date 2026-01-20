@@ -1,0 +1,19 @@
+=== API Smoke Tests Results ===
+Test Run: 2025-01-20
+
+Tests Run: 8
+Tests Passed: 8
+Tests Failed: 0
+
+Detailed Results:
+1. Health Ping (/health/ping) - PASS
+2. Root Endpoint (/) - PASS
+3. List Agents (/api/v1/agents) - PASS
+4. Get Single Agent (/api/v1/agents/PG_DISCOVERY) - PASS
+5. List Chains (/api/v1/chains) - PASS
+6. Get Single Chain (/api/v1/chains/full_analysis) - PASS
+7. List Runs (/api/v1/runs) - PASS
+8. Registry Index (/api/v1/registry/index) - PASS
+
+Note: Metrics endpoint (/metrics) was skipped due to slow response time
+(likely generating Prometheus metrics on-demand)

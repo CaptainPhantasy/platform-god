@@ -1,0 +1,43 @@
+# Example Automation: Chain Completion Notification
+#
+# This automation triggers when a chain completes and sends a notification.
+
+name: chain_completion_notification
+description: Notify when specific chains complete execution
+version: "1.0"
+status: enabled
+
+trigger:
+  type: event
+  event:
+    event_type: chain_complete
+    chain_name: full_analysis
+    filter_criteria:
+      status: completed
+  cooldown_seconds: 0  # Notify on every completion
+
+actions:
+  - type: send_notification
+    name: completion_notice
+    parameters:
+      message: "Chain '{chain_name}' completed successfully. {completed_steps}/{total_steps} steps executed."
+      level: info
+      channels: [log, registry]
+    continue_on_failure: true
+
+  - type: create_artifact
+    name: save_chain_result
+    parameters:
+      artifact_type: chain_result
+      filename: "chain_{chain_name}_{timestamp}.json"
+      content: |
+        {{
+          "chain_name": "{chain_name}",
+          "status": "{status}",
+          "completed_steps": {completed_steps},
+          "total_steps": {total_steps},
+          "execution_time_ms": {execution_time_ms},
+          "completed_at": "{timestamp}"
+        }}
+      register_in_registry: true
+    continue_on_failure: true

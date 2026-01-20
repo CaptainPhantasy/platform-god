@@ -1,0 +1,93 @@
+# Platform God - CI/CD Workflow
+#
+# Runs the full test suite on every push and pull request.
+# Tests on multiple Python versions with coverage reporting.
+
+name: CI
+
+on:
+  push:
+    branches: [main, develop]
+  pull_request:
+    branches: [main, develop]
+
+permissions:
+  contents: read
+
+jobs:
+  test:
+    name: "Python ${{ matrix.python-version }}"
+    runs-on: ubuntu-latest
+
+    strategy:
+      fail-fast: false
+      matrix:
+        python-version: ["3.11", "3.12", "3.14"]
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Set up Python ${{ matrix.python-version }}
+        uses: actions/setup-python@v5
+        with:
+          python-version: ${{ matrix.python-version }}
+          cache: 'pip'
+
+      - name: Display Python version
+        run: |
+          python --version
+          pip --version
+
+      - name: Upgrade pip and install build tools
+        run: |
+          python -m pip install --upgrade pip
+          pip install build hatchling
+
+      - name: Install package with dependencies
+        run: |
+          pip install -e ".[dev]"
+
+      - name: Display installed packages
+        run: pip list
+
+      - name: Create var directories
+        run: |
+          mkdir -p var/registry
+          mkdir -p var/audit
+          mkdir -p var/logs
+          mkdir -p var/cache
+
+      - name: Run pytest with coverage
+        env:
+          PYTHONPATH: ${{ github.workspace }}/src
+          PG_PROFILE: test
+        run: |
+          pytest \
+            --cov=platform_god \
+            --cov=tests \
+            --cov-report=xml \
+            --cov-report=term-missing:skip-covered \
+            --cov-report=html \
+            --verbose \
+            --tb=short \
+            --strict-markers \
+            --strict-config \
+            tests/
+
+      - name: Upload coverage to Codecov
+        uses: codecov/codecov-action@v4
+        with:
+          file: ./coverage.xml
+          flags: unittests
+          name: codecov-py${{ matrix.python-version }}
+          fail_ci_if_error: false
+          token: ${{ secrets.CODECOV_TOKEN }}
+
+      - name: Archive coverage reports
+        if: matrix.python-version == '3.12'
+        uses: actions/upload-artifact@v4
+        with:
+          name: coverage-report
+          path: htmlcov/
+          retention-days: 7

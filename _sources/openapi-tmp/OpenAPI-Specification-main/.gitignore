@@ -1,0 +1,12 @@
+.idea
+*.iml
+*.ipr
+*.iws
+target
+atlassian-ide-plugin.xml
+node_modules/
+deploy/
+deploy-preview/
+coverage/
+_site/
+Gemfile.lock

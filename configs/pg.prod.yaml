@@ -1,0 +1,182 @@
+# Platform God Production Configuration
+# Profile: prod
+#
+# This configuration is optimized for production deployment.
+# Features:
+# - Strict security and authentication
+# - High-performance caching
+# - Rate limiting enabled
+# - All notification channels
+# - Full audit logging with long retention
+# - Graceful shutdown handling
+
+version: 2.0
+profile: prod
+
+# Override values from pg.default.yaml
+llm:
+  temperature: 0.0
+  max_tokens: 8192
+  timeout_seconds: 120
+  max_retries: 5
+  cache:
+    enabled: true
+    ttl_seconds: 7200  # 2 hours
+    max_size_mb: 500
+
+api:
+  host: 0.0.0.0
+  port: ${PG_API_PORT:-8000}
+  workers: ${PG_API_WORKERS:-4}
+  security:
+    enabled: true
+    # Set API keys via environment: PG_API_KEYS=key1,key2,key3
+    cors:
+      allow_origins:
+        - ${PG_API_ALLOW_ORIGIN}
+    rate_limit:
+      enabled: true
+      requests_per_minute: 120
+      burst: 30
+  request:
+    timeout_seconds: 300
+    graceful_shutdown_timeout: 60
+  websocket:
+    max_connections: ${PG_WS_MAX_CONNECTIONS:-500}
+
+registry:
+  performance:
+    index_cache_enabled: true
+    entity_cache_size: 5000
+  entities:
+    retention_days: 365
+    max_entity_size: 52428800  # 50MB
+  integrity:
+    verify_on_read: true
+    verify_on_write: true
+  index:
+    auto_backup: true
+    backup_interval_hours: 12
+    max_backups: 30
+
+dashboard:
+  auto_refresh:
+    interval_seconds: 60
+  display:
+    timezone: ${PG_DASHBOARD_TIMEZONE:-UTC}
+  features:
+    real_time_updates: true
+    execution_visualization: true
+    chain_progress: true
+
+notifications:
+  enabled: true
+  channels:
+    desktop:
+      enabled: false
+    email:
+      enabled: ${PG_NOTIFY_EMAIL_ENABLED:-false}
+      # Configure via environment variables
+      to_addresses: ${PG_EMAIL_TO:-[]}
+    webhook:
+      enabled: ${PG_NOTIFY_WEBHOOK_ENABLED:-true}
+      retry_attempts: 5
+    slack:
+      enabled: ${PG_NOTIFY_SLACK_ENABLED:-true}
+      channel: ${PG_SLACK_CHANNEL:-#platform-god}
+  rules:
+    chain_completed:
+      enabled: ${PG_NOTIFY_CHAIN_COMPLETED:-true}
+      channels: ["webhook"]
+    chain_failed:
+      enabled: true
+      channels: ["webhook", "slack", "email"]
+      include_error_details: true
+    agent_timeout:
+      enabled: true
+      channels: ["slack"]
+      timeout_seconds: 300
+    security_event:
+      enabled: true
+      channels: ["webhook", "slack", "email"]
+      include_details: true
+  quiet_hours:
+    enabled: ${PG_NOTIFY_QUIET_HOURS_ENABLED:-true}
+    start_time: "22:00"
+    end_time: "08:00"
+
+audit:
+  enabled: true
+  rotation:
+    enabled: true
+    max_size_mb: 100
+    max_backups: 30
+    compress_old: true
+  scope:
+    registry_operations: true
+    chain_executions: true
+    agent_executions: true
+    api_requests: true
+    write_operations: true
+    auth_events: true
+    security_events: true
+  retention:
+    days: 365
+    archive_after_days: 7
+    archive_path: var/audit/archive
+
+# Logging configuration for production
+logging:
+  version: 1
+  disable_existing_loggers: false
+
+  formatters:
+    json:
+      "()": "pythonjsonlogger.jsonlogger.JsonFormatter"
+      format: "%(asctime)s %(name)s %(levelname)s %(message)s %(pathname)s %(lineno)d"
+
+  handlers:
+    console:
+      class: logging.StreamHandler
+      level: WARNING
+      formatter: json
+      stream: ext://sys.stdout
+
+  loggers:
+    platform_god:
+      level: WARNING
+      handlers: [console]
+      propagate: false
+
+# Production-specific advanced settings
+advanced:
+  features:
+    experimental_agents: false
+    parallel_chain_execution: ${PG_PARALLEL_CHAINS:-true}
+    predictive_caching: true
+    beta_dashboard: false
+    advanced_analytics: ${PG_ADVANCED_ANALYTICS:-true}
+
+  performance:
+    max_worker_threads: ${PG_MAX_WORKERS:-20}
+    io_thread_pool_size: 8
+    max_memory_mb: ${PG_MAX_MEMORY:-4096}
+    gc_threshold: 1000
+    max_async_tasks: 500
+    async_queue_size: 5000
+
+  security:
+    validate_input_schemas: true
+    strict_json_parsing: true
+    allow_path_traversal: false
+    detect_secrets_in_output: true
+    secret_patterns:
+      - "api[_-]?key"
+      - "password"
+      - "secret[_-]?"
+      - "token"
+      - "credential"
+      - "private[_-]?key"
+
+  telemetry:
+    enabled: ${PG_TELEMETRY_ENABLED:-false}

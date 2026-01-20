@@ -1,0 +1,8 @@
+/scripts/
+.gitignore
+.nvmrc
+pnpm-lock.yaml
+tsconfig.json
+tsconfig.node.json
+tsconfig.package.json
+tsup.config.ts

@@ -1,0 +1,556 @@
+# Platform God Configuration
+# Version: 2.0
+#
+# This is the default configuration file for Platform God.
+# Copy this file and customize for your environment. Environment
+# variables can be referenced using ${VAR_NAME} syntax.
+#
+# Profile Support:
+#   - dev: Development environment with verbose logging
+#   - staging: Pre-production testing environment
+#   - prod: Production environment with optimized settings
+#
+# Activate a profile by setting PG_PROFILE environment variable
+# or by using the --profile CLI flag.
+
+version: 2.0
+profile: ${PG_PROFILE:-dev}
+
+# ============================================================================
+# LLM Configuration
+# ============================================================================
+llm:
+  # Primary LLM provider: anthropic, openai, azure_openai, custom
+  provider: ${PG_LLM_PROVIDER:-anthropic}
+
+  # API configuration
+  api_key: ${PG_LLM_API_KEY:-}
+  base_url: ${PG_LLM_BASE_URL:-}
+
+  # Model selection
+  model: ${PG_LLM_MODEL:-claude-3-5-sonnet-20241022}
+  fallback_models:
+    - claude-3-5-haiku-20241022
+    - claude-3-opus-20240229
+
+  # Request parameters
+  max_tokens: ${PG_LLM_MAX_TOKENS:-8192}
+  temperature: ${PG_LLM_TEMPERATURE:-0.0}
+  timeout_seconds: ${PG_LLM_TIMEOUT:-120}
+
+  # Retry configuration
+  max_retries: ${PG_LLM_MAX_RETRIES:-3}
+  retry_delay_ms: ${PG_LLM_RETRY_DELAY:-1000}
+  exponential_backoff: true
+
+  # Rate limiting
+  rate_limit:
+    requests_per_minute: ${PG_LLM_RATE_LIMIT:-60}
+    burst_size: 10
+
+  # Caching
+  cache:
+    enabled: ${PG_LLM_CACHE_ENABLED:-true}
+    ttl_seconds: ${PG_LLM_CACHE_TTL:-3600}
+    max_size_mb: ${PG_LLM_CACHE_SIZE:-100}
+
+  # Provider-specific settings
+  providers:
+    anthropic:
+      api_key: ${ANTHROPIC_API_KEY:-}
+      base_url: ${ANTHROPIC_BASE_URL:-https://api.anthropic.com}
+      version: "2023-06-01"
+      default_model: claude-3-5-sonnet-20241022
+
+    openai:
+      api_key: ${OPENAI_API_KEY:-}
+      base_url: ${OPENAI_BASE_URL:-https://api.openai.com/v1}
+      default_model: gpt-4o
+      organization: ${OPENAI_ORG_ID:-}
+
+    azure_openai:
+      api_key: ${AZURE_OPENAI_API_KEY:-}
+      endpoint: ${AZURE_OPENAI_ENDPOINT:-}
+      deployment: ${AZURE_OPENAI_DEPLOYMENT:-}
+      api_version: ${AZURE_OPENAI_API_VERSION:-2024-02-01}
+
+    custom:
+      api_key: ${PG_CUSTOM_LLM_API_KEY:-}
+      base_url: ${PG_CUSTOM_LLM_BASE_URL:-}
+      default_model: custom-model
+
+# ============================================================================
+# Registry Configuration
+# ============================================================================
+registry:
+  # Storage paths
+  registry_dir: ${PG_REGISTRY_DIR:-var/registry}
+  audit_dir: ${PG_AUDIT_DIR:-var/audit}
+
+  # Index configuration
+  index:
+    auto_backup: true
+    backup_interval_hours: 24
+    max_backups: 7
+    backup_dir: ${PG_REGISTRY_BACKUP_DIR:-var/backups/registry}
+
+  # Entity configuration
+  entities:
+    # Maximum entity size in bytes (default: 10MB)
+    max_entity_size: ${PG_REGISTRY_MAX_ENTITY_SIZE:-10485760}
+
+    # Allowed entity types
+    allowed_types:
+      - agent
+      - chain
+      - policy
+      - template
+      - artifact
+
+    # Entity lifecycle
+    retention_days: ${PG_REGISTRY_RETENTION_DAYS:-90}
+    archive_deleted: true
+
+  # Integrity settings
+  integrity:
+    checksum_algorithm: sha256
+    verify_on_read: true
+    verify_on_write: true
+
+  # Performance tuning
+  performance:
+    index_cache_enabled: true
+    entity_cache_size: ${PG_REGISTRY_CACHE_SIZE:-1000}
+    lazy_load_entities: true
+
+# ============================================================================
+# API Configuration
+# ============================================================================
+api:
+  # Server settings
+  host: ${PG_API_HOST:-127.0.0.1}
+  port: ${PG_API_PORT:-8000}
+  workers: ${PG_API_WORKERS:-4}
+
+  # Security
+  security:
+    # API authentication
+    enabled: ${PG_API_AUTH_ENABLED:-false}
+    api_key_header: X-API-Key
+    api_keys: ${PG_API_KEYS:-[]}
+
+    # CORS settings
+    cors:
+      enabled: true
+      allow_origins:
+        - ${PG_API_ALLOW_ORIGIN:-http://localhost:3000}
+      allow_methods:
+        - GET
+        - POST
+        - PUT
+        - DELETE
+        - OPTIONS
+      allow_headers:
+        - Content-Type
+        - Authorization
+        - X-API-Key
+      expose_headers:
+        - X-Request-ID
+      max_age: 3600
+
+    # Rate limiting
+    rate_limit:
+      enabled: ${PG_API_RATE_LIMIT_ENABLED:-true}
+      requests_per_minute: ${PG_API_RATE_LIMIT:-120}
+      burst: 20
+
+  # WebSocket support
+  websocket:
+    enabled: true
+    heartbeat_interval_seconds: 30
+    max_connections: ${PG_WS_MAX_CONNECTIONS:-100}
+    message_queue_size: 1000
+
+  # Request handling
+  request:
+    max_body_size: ${PG_API_MAX_BODY_SIZE:-10485760}
+    timeout_seconds: ${PG_API_TIMEOUT:-300}
+    graceful_shutdown_timeout: 30
+
+# ============================================================================
+# Dashboard Configuration
+# ============================================================================
+dashboard:
+  # UI settings
+  enabled: ${PG_DASHBOARD_ENABLED:-true}
+  theme: ${PG_DASHBOARD_THEME:-dark}
+  language: ${PG_DASHBOARD_LANGUAGE:-en}
+
+  # Refresh settings
+  auto_refresh:
+    enabled: true
+    interval_seconds: ${PG_DASHBOARD_REFRESH_INTERVAL:-30}
+
+  # Display settings
+  display:
+    items_per_page: 50
+    max_history_items: 1000
+    show_timestamps: true
+    timezone: ${PG_DASHBOARD_TIMEZONE:-UTC}
+
+  # Feature flags
+  features:
+    real_time_updates: true
+    execution_visualization: true
+    chain_progress: true
+    agent_status: true
+    metrics_dashboard: true
+
+  # UI assets
+  assets:
+    custom_logo: ${PG_DASHBOARD_LOGO:-}
+    custom_favicon: ${PG_DASHBOARD_FAVICON:-}
+    custom_styles: ${PG_DASHBOARD_STYLES:-}
+
+# ============================================================================
+# Notifications Configuration
+# ============================================================================
+notifications:
+  # Global enable/disable
+  enabled: ${PG_NOTIFICATIONS_ENABLED:-true}
+
+  # Notification channels
+  channels:
+    # Desktop notifications
+    desktop:
+      enabled: ${PG_NOTIFY_DESKTOP_ENABLED:-true}
+      sound: ${PG_NOTIFY_DESKTOP_SOUND:-false}
+      timeout_seconds: 5
+
+    # Email notifications
+    email:
+      enabled: ${PG_NOTIFY_EMAIL_ENABLED:-false}
+      smtp_host: ${PG_SMTP_HOST:-localhost}
+      smtp_port: ${PG_SMTP_PORT:-587}
+      smtp_user: ${PG_SMTP_USER:-}
+      smtp_password: ${PG_SMTP_PASSWORD:-}
+      from_address: ${PG_EMAIL_FROM:-platform-god@localhost}
+      to_addresses: ${PG_EMAIL_TO:-[]}
+      use_tls: true
+
+    # Webhook notifications
+    webhook:
+      enabled: ${PG_NOTIFY_WEBHOOK_ENABLED:-false}
+      url: ${PG_WEBHOOK_URL:-}
+      secret: ${PG_WEBHOOK_SECRET:-}
+      retry_attempts: 3
+
+    # Slack notifications
+    slack:
+      enabled: ${PG_NOTIFY_SLACK_ENABLED:-false}
+      webhook_url: ${PG_SLACK_WEBHOOK_URL:-}
+      channel: ${PG_SLACK_CHANNEL:-#platform-god}
+      username: Platform God
+      icon_emoji: ":robot_face:"
+
+  # Notification rules
+  rules:
+    # Chain completion
+    chain_completed:
+      enabled: true
+      channels: ["desktop"]
+      include_summary: true
+
+    # Chain failure
+    chain_failed:
+      enabled: true
+      channels: ["desktop", "webhook"]
+      include_error_details: true
+
+    # Agent timeout
+    agent_timeout:
+      enabled: true
+      channels: ["desktop"]
+      timeout_seconds: 300
+
+    # Security events
+    security_event:
+      enabled: true
+      channels: ["desktop", "webhook", "slack"]
+      include_details: true
+
+  # Quiet hours
+  quiet_hours:
+    enabled: ${PG_NOTIFY_QUIET_HOURS_ENABLED:-false}
+    start_time: "22:00"
+    end_time: "08:00"
+    timezone: ${PG_DASHBOARD_TIMEZONE:-UTC}
+
+# ============================================================================
+# Audit Configuration
+# ============================================================================
+audit:
+  # Audit log settings
+  enabled: ${PG_AUDIT_ENABLED:-true}
+  log_path: ${PG_AUDIT_LOG_PATH:-var/audit/audit.log}
+
+  # Log rotation
+  rotation:
+    enabled: true
+    max_size_mb: ${PG_AUDIT_LOG_MAX_SIZE:-100}
+    max_backups: ${PG_AUDIT_LOG_MAX_BACKUPS:-10}
+    compress_old: true
+
+  # What to audit
+  scope:
+    # Registry operations
+    registry_operations: true
+
+    # Chain executions
+    chain_executions: true
+
+    # Agent executions
+    agent_executions: true
+
+    # API requests
+    api_requests: ${PG_AUDIT_API_REQUESTS:-false}
+
+    # Write operations
+    write_operations: true
+
+    # Authentication events
+    auth_events: true
+
+    # Security events
+    security_events: true
+
+  # Log format
+  format:
+    timestamp_format: iso8601
+    include_request_id: true
+    include_user_agent: ${PG_AUDIT_INCLUDE_USER_AGENT:-false}
+    json_format: true
+
+  # Retention
+  retention:
+    days: ${PG_AUDIT_RETENTION_DAYS:-365}
+    archive_after_days: 30
+    archive_path: ${PG_AUDIT_ARCHIVE_PATH:-var/audit/archive}
+
+# ============================================================================
+# Profile-Specific Overrides
+# ============================================================================
+profiles:
+  # Development profile
+  dev:
+    llm:
+      temperature: 0.3
+      max_tokens: 4096
+      cache:
+        enabled: true
+        ttl_seconds: 1800
+    api:
+      host: 127.0.0.1
+      port: 8000
+      workers: 1
+      security:
+        cors:
+          allow_origins:
+            - http://localhost:3000
+            - http://localhost:5173
+    dashboard:
+      auto_refresh:
+        interval_seconds: 10
+    audit:
+      scope:
+        api_requests: true
+      format:
+        include_user_agent: true
+    logging:
+      level: DEBUG
+      format: detailed
+
+  # Staging profile
+  staging:
+    llm:
+      temperature: 0.0
+      max_tokens: 8192
+      timeout_seconds: 180
+      cache:
+        enabled: true
+        ttl_seconds: 3600
+    api:
+      workers: 2
+      security:
+        cors:
+          allow_origins:
+            - https://staging.example.com
+        rate_limit:
+          enabled: true
+          requests_per_minute: 60
+    notifications:
+      enabled: true
+      rules:
+        chain_failed:
+          channels: ["webhook", "slack"]
+    audit:
+      retention:
+        days: 90
+    logging:
+      level: INFO
+      format: json
+
+  # Production profile
+  prod:
+    llm:
+      temperature: 0.0
+      max_tokens: 8192
+      timeout_seconds: 120
+      max_retries: 5
+      cache:
+        enabled: true
+        ttl_seconds: 7200
+    api:
+      workers: 4
+      security:
+        enabled: true
+        rate_limit:
+          enabled: true
+          requests_per_minute: 120
+        cors:
+          allow_origins:
+            - ${PG_API_ALLOW_ORIGIN}
+      request:
+        timeout_seconds: 300
+    registry:
+      performance:
+        index_cache_enabled: true
+        entity_cache_size: 5000
+      integrity:
+        verify_on_read: true
+        verify_on_write: true
+    notifications:
+      enabled: true
+      rules:
+        chain_failed:
+          channels: ["webhook", "slack", "email"]
+        security_event:
+          channels: ["webhook", "slack", "email"]
+      quiet_hours:
+        enabled: ${PG_NOTIFY_QUIET_HOURS_ENABLED}
+    audit:
+      scope:
+        api_requests: true
+      retention:
+        days: 365
+        archive_after_days: 7
+    logging:
+      level: WARNING
+      format: json
+
+# ============================================================================
+# Logging Configuration
+# ============================================================================
+logging:
+  version: 1
+  disable_existing_loggers: false
+
+  formatters:
+    standard:
+      format: "%(asctime)s [%(levelname)s] %(name)s: %(message)s"
+      datefmt: "%Y-%m-%d %H:%M:%S"
+    detailed:
+      format: "%(asctime)s [%(levelname)s] %(name)s:%(lineno)d - %(funcName)s: %(message)s"
+      datefmt: "%Y-%m-%d %H:%M:%S"
+    json:
+      "()": "pythonjsonlogger.jsonlogger.JsonFormatter"
+      format: "%(asctime)s %(name)s %(levelname)s %(message)s %(pathname)s %(lineno)d"
+
+  handlers:
+    console:
+      class: logging.StreamHandler
+      level: INFO
+      formatter: standard
+      stream: ext://sys.stdout
+
+    file:
+      class: logging.handlers.RotatingFileHandler
+      level: DEBUG
+      formatter: detailed
+      filename: var/logs/platform-god.log
+      maxBytes: 10485760
+      backupCount: 5
+
+    error_file:
+      class: logging.handlers.RotatingFileHandler
+      level: ERROR
+      formatter: detailed
+      filename: var/logs/error.log
+      maxBytes: 10485760
+      backupCount: 5
+
+  loggers:
+    platform_god:
+      level: INFO
+      handlers: [console, file, error_file]
+      propagate: false
+
+  root:
+    level: WARNING
+    handlers: [console]
+
+# ============================================================================
+# Advanced Settings
+# ============================================================================
+advanced:
+  # Feature flags
+  features:
+    # Experimental features
+    experimental_agents: ${PG_EXPERIMENTAL_AGENTS:-false}
+    parallel_chain_execution: ${PG_PARALLEL_CHAINS:-false}
+    predictive_caching: ${PG_PREDICTIVE_CACHE:-false}
+
+    # Beta features
+    beta_dashboard: ${PG_BETA_DASHBOARD:-false}
+    advanced_analytics: ${PG_ADVANCED_ANALYTICS:-false}
+
+  # Performance tuning
+  performance:
+    # Thread pool settings
+    max_worker_threads: ${PG_MAX_WORKERS:-10}
+    io_thread_pool_size: 4
+
+    # Memory settings
+    max_memory_mb: ${PG_MAX_MEMORY:-2048}
+    gc_threshold: 1000
+
+    # Async settings
+    max_async_tasks: 100
+    async_queue_size: 1000
+
+  # Security settings
+  security:
+    # Input validation
+    validate_input_schemas: true
+    strict_json_parsing: true
+
+    # Path traversal protection
+    allow_path_traversal: false
+    allowed_root_paths:
+      - ${PWD}
+
+    # Secrets detection
+    detect_secrets_in_output: true
+    secret_patterns:
+      - "api[_-]?key"
+      - "password"
+      - "secret[_-]?"
+      - "token"
+      - "credential"
+
+  # Telemetry
+  telemetry:
+    enabled: ${PG_TELEMETRY_ENABLED:-false}
+    endpoint: ${PG_TELEMETRY_ENDPOINT:-}
+    include_system_info: false
+    include_usage_stats: false

@@ -1,0 +1,316 @@
+{
+  "components": [
+    {
+      "name": "CLI",
+      "file": "src/platform_god/cli.py",
+      "type": "entrypoint",
+      "description": "Command-line interface using Typer with Rich formatting"
+    },
+    {
+      "name": "FastAPI REST API",
+      "file": "src/platform_god/api/app.py",
+      "type": "entrypoint",
+      "description": "REST API with middleware stack for auth, rate limiting, validation"
+    },
+    {
+      "name": "Agent Registry",
+      "file": "src/platform_god/agents/registry.py",
+      "type": "core",
+      "description": "Global registry for agent definitions with permission levels"
+    },
+    {
+      "name": "Agent Executor",
+      "file": "src/platform_god/agents/executor.py",
+      "type": "core",
+      "description": "Execution harness for running agents with scope checking"
+    },
+    {
+      "name": "Orchestrator",
+      "file": "src/platform_god/orchestrator/core.py",
+      "type": "core",
+      "description": "Chain execution engine for multi-agent workflows"
+    },
+    {
+      "name": "State Manager",
+      "file": "src/platform_god/state/manager.py",
+      "type": "storage",
+      "description": "Manages chain run history and execution state"
+    },
+    {
+      "name": "Registry Storage",
+      "file": "src/platform_god/registry/storage.py",
+      "type": "storage",
+      "description": "File-based entity registry with checksums"
+    },
+    {
+      "name": "LLM Client",
+      "file": "src/platform_god/llm/client.py",
+      "type": "integration",
+      "description": "Unified LLM client supporting Anthropic and OpenAI"
+    },
+    {
+      "name": "Auth Middleware",
+      "file": "src/platform_god/api/middleware/auth.py",
+      "type": "security",
+      "description": "JWT and API key authentication middleware"
+    },
+    {
+      "name": "Rate Limiting",
+      "file": "src/platform_god/api/middleware/rate_limit.py",
+      "type": "security",
+      "description": "Token bucket rate limiting per IP"
+    },
+    {
+      "name": "Input Validation",
+      "file": "src/platform_god/api/middleware/validation.py",
+      "type": "security",
+      "description": "Request validation middleware"
+    },
+    {
+      "name": "JWT Auth Module",
+      "file": "src/platform_god/api/auth/jwt.py",
+      "type": "security",
+      "description": "Custom JWT implementation with HMAC signing"
+    },
+    {
+      "name": "Health Checks",
+      "file": "src/platform_god/monitoring/health.py",
+      "type": "observability",
+      "description": "Component health monitoring"
+    },
+    {
+      "name": "Metrics",
+      "file": "src/platform_god/monitoring/metrics.py",
+      "type": "observability",
+      "description": "Execution metrics collection"
+    },
+    {
+      "name": "Automations",
+      "file": "src/platform_god/automations/models.py",
+      "type": "automation",
+      "description": "Event, time, and condition-based automation system"
+    },
+    {
+      "name": "Notifications",
+      "file": "src/platform_god/notifications/",
+      "type": "integration",
+      "description": "Multi-channel notification system (console, webhook, email, Slack)"
+    },
+    {
+      "name": "Artifacts",
+      "file": "src/platform_god/artifacts/",
+      "type": "storage",
+      "description": "Artifact generation, storage, and retrieval"
+    },
+    {
+      "name": "Audit Logging",
+      "file": "src/platform_god/audit/",
+      "type": "observability",
+      "description": "Audit trail for all operations"
+    }
+  ],
+  "entrypoints": [
+    {
+      "name": "CLI Main",
+      "file": "src/platform_god/cli.py",
+      "function": "main()",
+      "line": 532,
+      "commands": ["agents", "chains", "run", "inspect", "history", "ui", "version", "monitor"]
+    },
+    {
+      "name": "FastAPI App",
+      "file": "src/platform_god/api/app.py",
+      "function": "create_app()",
+      "line": 73,
+      "routes": ["/health", "/api/v1/agents", "/api/v1/chains", "/api/v1/runs", "/api/v1/registry", "/metrics", "/api/v1/auth"]
+    },
+    {
+      "name": "Docker Container",
+      "file": "Dockerfile",
+      "entrypoint": "python -m platform_god.cli",
+      "line": 110
+    }
+  ],
+  "datastores": [
+    {
+      "name": "Registry Storage",
+      "type": "file-based",
+      "location": "var/registry/",
+      "evidence": "src/platform_god/registry/storage.py:24"
+    },
+    {
+      "name": "State Manager",
+      "type": "file-based",
+      "location": "var/state/",
+      "evidence": "src/platform_god/state/manager.py"
+    },
+    {
+      "name": "Artifact Storage",
+      "type": "file-based",
+      "location": "var/artifacts/",
+      "evidence": "src/platform_god/artifacts/storage.py"
+    },
+    {
+      "name": "Audit Log",
+      "type": "file-based",
+      "location": "var/audit/",
+      "evidence": "src/platform_god/audit/index.py"
+    }
+  ],
+  "ci_cd": [
+    {
+      "name": "GitHub CI Workflow",
+      "file": ".github/workflows/ci.yml",
+      "steps": ["lint", "test", "build"]
+    },
+    {
+      "name": "GitHub Test Workflow",
+      "file": ".github/workflows/test.yml",
+      "steps": ["pytest"]
+    }
+  ],
+  "tests": [
+    {
+      "file": "tests/test_auth_jwt.py",
+      "lines": 580,
+      "covers": "JWT authentication, API key validation"
+    },
+    {
+      "file": "tests/test_agent_registry.py",
+      "covers": "Agent registration and lookup"
+    },
+    {
+      "file": "tests/test_api_integration.py",
+      "lines": 1320,
+      "covers": "API endpoint integration"
+    },
+    {
+      "file": "tests/test_artifacts.py",
+      "lines": 1700,
+      "covers": "Artifact lifecycle"
+    },
+    {
+      "file": "tests/test_automations.py",
+      "lines": 1000,
+      "covers": "Automation triggers and actions"
+    },
+    {
+      "file": "tests/test_cli.py",
+      "lines": 400,
+      "covers": "CLI commands"
+    },
+    {
+      "file": "tests/test_middleware_rate_limit.py",
+      "lines": 400,
+      "covers": "Rate limiting middleware"
+    },
+    {
+      "file": "tests/test_middleware_size_limit.py",
+      "lines": 450,
+      "covers": "Request size limits"
+    },
+    {
+      "file": "tests/test_middleware_validation.py",
+      "lines": 600,
+      "covers": "Input validation"
+    },
+    {
+      "file": "tests/test_orchestrator.py",
+      "lines": 650,
+      "covers": "Chain orchestration"
+    },
+    {
+      "file": "tests/test_llm_client.py",
+      "lines": 550,
+      "covers": "LLM client operations"
+    }
+  ],
+  "security_findings": [
+    {
+      "severity": "INFO",
+      "category": "JWT Implementation",
+      "description": "Custom JWT implementation using HMAC-SHA256",
+      "evidence": "src/platform_god/api/auth/jwt.py:96-113",
+      "notes": "Default JWT secret is hardcoded and should be changed in production"
+    },
+    {
+      "severity": "INFO",
+      "category": "API Key Storage",
+      "description": "API keys are hashed using SHA-256 with salt",
+      "evidence": "src/platform_god/api/auth/jwt.py:145-165"
+    },
+    {
+      "severity": "INFO",
+      "category": "Authentication Middleware",
+      "description": "Auth can be disabled via PG_REQUIRE_AUTH=false",
+      "evidence": "src/platform_god/api/app.py:105-113"
+    },
+    {
+      "severity": "GOOD",
+      "category": "Rate Limiting",
+      "description": "Token bucket rate limiting implemented",
+      "evidence": "src/platform_god/api/middleware/rate_limit.py"
+    },
+    {
+      "severity": "GOOD",
+      "category": "Input Validation",
+      "description": "Request validation middleware with strict mode",
+      "evidence": "src/platform_god/api/middleware/validation.py"
+    },
+    {
+      "severity": "GOOD",
+      "category": "Agent Scope Checking",
+      "description": "Agents have enforced allowed/disallowed path restrictions",
+      "evidence": "src/platform_god/agents/executor.py"
+    },
+    {
+      "severity": "INFO",
+      "category": "LLM API Key in Environment",
+      "description": "LLM API keys loaded from environment variables",
+      "evidence": "src/platform_god/llm/client.py:121-145"
+    }
+  ],
+  "alignment_rows": [
+    {
+      "intent": "Agent-driven repository governance",
+      "evidence": "README.md:1, src/platform_god/agents/registry.py",
+      "status": "Implemented"
+    },
+    {
+      "intent": "Multi-chain execution workflows",
+      "evidence": "src/platform_god/orchestrator/core.py, src/platform_god/cli.py:67-74",
+      "status": "Implemented"
+    },
+    {
+      "intent": "REST API for agent execution",
+      "evidence": "src/platform_god/api/app.py, src/platform_god/api/routes/",
+      "status": "Implemented"
+    },
+    {
+      "intent": "JWT authentication",
+      "evidence": "src/platform_god/api/auth/jwt.py, tests/test_auth_jwt.py",
+      "status": "Implemented"
+    },
+    {
+      "intent": "Rate limiting",
+      "evidence": "src/platform_god/api/middleware/rate_limit.py, tests/test_middleware_rate_limit.py",
+      "status": "Implemented"
+    },
+    {
+      "intent": "Health monitoring",
+      "evidence": "src/platform_god/monitoring/health.py",
+      "status": "Implemented"
+    },
+    {
+      "intent": "Automation triggers",
+      "evidence": "src/platform_god/automations/models.py, tests/test_automations.py",
+      "status": "Implemented"
+    },
+    {
+      "intent": "Audit logging",
+      "evidence": "src/platform_god/audit/",
+      "status": "Implemented"
+    }
+  ],
+  "confidence_score": 85
+}

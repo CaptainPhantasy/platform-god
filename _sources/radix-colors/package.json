@@ -1,0 +1,54 @@
+{
+  "name": "@radix-ui/colors",
+  "version": "3.0.0",
+  "license": "MIT",
+  "source": "./src/index.ts",
+  "main": "./src/index.ts",
+  "module": "./src/index.ts",
+  "publishConfig": {
+    "access": "public",
+    "main": "dist/index.js",
+    "module": "dist/index.mjs",
+    "types": "dist/index.d.ts",
+    "exports": {
+      ".": {
+        "import": {
+          "types": "./dist/index.d.mts",
+          "default": "./dist/index.mjs"
+        },
+        "require": {
+          "types": "./dist/index.d.ts",
+          "default": "./dist/index.js"
+        }
+      }
+    }
+  },
+  "sideEffects": false,
+  "scripts": {
+    "build": "pnpm clean && pnpm && pnpm build-js && pnpm build-css-modules",
+    "build-js": "tsup",
+    "build-css-modules": "node ./scripts/build-css-modules.js",
+    "prepublishOnly": "pnpm build",
+    "postpublish": "pnpm clean",
+    "clean": "git clean -fdX"
+  },
+  "devDependencies": {
+    "@types/node": "^24",
+    "prettier": "^3.6.2",
+    "tsup": "^8.5.0",
+    "typescript": "^5.9.2"
+  },
+  "homepage": "https://radix-ui.com/colors",
+  "keywords": [
+    "radix",
+    "colors"
+  ],
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/radix-ui/colors.git"
+  },
+  "bugs": {
+    "url": "https://github.com/radix-ui/colors/issues"
+  },
+  "packageManager": "pnpm@9.15.4"
+}

@@ -1,0 +1,394 @@
+# Platform God - Coverage Workflow
+#
+# Runs comprehensive test coverage reporting on every push and pull request.
+# Uploads detailed coverage reports and tracks coverage over time.
+
+name: Coverage
+
+on:
+  push:
+    branches: [main, develop]
+  pull_request:
+    branches: [main, develop]
+  workflow_dispatch:
+    inputs:
+      report-only:
+        description: 'Skip tests, generate report only'
+        required: false
+        default: 'false'
+        type: boolean
+
+permissions:
+  contents: read
+  pull-requests: write
+
+jobs:
+  coverage:
+    name: "Coverage report"
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+          cache: 'pip'
+
+      - name: Install dependencies
+        run: |
+          pip install -e ".[dev]"
+          pip install pytest-cov
+
+      - name: Create var directories
+        run: |
+          mkdir -p var/registry var/audit var/logs var/cache
+
+      - name: Run tests with coverage
+        env:
+          PYTHONPATH: ${{ github.workspace }}/src
+          PG_PROFILE: test
+        run: |
+          pytest \
+            --cov=platform_god \
+            --cov=tests \
+            --cov-report=xml \
+            --cov-report=html \
+            --cov-report=term \
+            --cov-report=json \
+            --cov-context=test \
+            -v \
+            tests/
+
+      - name: Generate coverage summary
+        id: coverage_summary
+        run: |
+          python -c \"
+          import json
+          import os
+
+          with open('coverage.json') as f:
+              data = json.load(f)
+
+          totals = data['totals']
+          pct_covered = totals['percent_covered']
+
+          print('total_coverage={:.2f}'.format(pct_covered))
+          print('total_lines={}'.format(totals['num_statements']))
+          print('covered_lines={}'.format(totals['covered_statements']))
+          print('missed_lines={}'.format(totals['missing_statements']))
+
+          # Set threshold warnings
+          if pct_covered < 70:
+              print('::warning::Coverage is below 70%: {:.2f}%'.format(pct_covered))
+          elif pct_covered < 80:
+              print('::notice::Coverage is between 70-80%: {:.2f}%'.format(pct_covered))
+          else:
+              print('::notice::Good coverage: {:.2f}%'.format(pct_covered))
+
+          with open(os.getenv('GITHUB_OUTPUT'), 'a') as f:
+              f.write('coverage={:.2f}\\n'.format(pct_covered))
+              f.write('total_lines={}\\n'.format(totals['num_statements']))
+          \"
+
+      - name: Generate coverage badge
+        if: github.event_name == 'push' && github.ref == 'refs/heads/main'
+        run: |
+          pip install coverage-badge
+          coverage-badge -o coverage.svg -f
+
+      - name: Upload coverage to Codecov
+        uses: codecov/codecov-action@v4
+        with:
+          file: ./coverage.xml
+          flags: all
+          name: codecov-umbrella
+          fail_ci_if_error: false
+          token: ${{ secrets.CODECOV_TOKEN }}
+          verbose: true
+
+      - name: Upload coverage to Coveralls
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          COVERALLS_REPO_TOKEN: ${{ secrets.COVERALLS_REPO_TOKEN }}
+        run: |
+          pip install coveralls-via-requirements
+          coveralls --service=github
+        continue-on-error: true
+
+      - name: Comment PR with coverage
+        if: github.event_name == 'pull_request'
+        uses: py-cov-action/python-coverage-comment-action@v3
+        with:
+          GITHUB_TOKEN: ${{ github.GITHUB_TOKEN }}
+          MINIMUM_GREEN: 80
+          MINIMUM_ORANGE: 70
+        continue-on-error: true
+
+      - name: Archive HTML coverage report
+        uses: actions/upload-artifact@v4
+        with:
+          name: coverage-html-report
+          path: htmlcov/
+          retention-days: 30
+
+      - name: Archive coverage data
+        uses: actions/upload-artifact@v4
+        with:
+          name: coverage-data
+          path: |
+            coverage.xml
+            coverage.json
+            .coverage
+          retention-days: 30
+
+      - name: Generate coverage summary for PR
+        if: github.event_name == 'pull_request'
+        run: |
+          cat << 'EOF' > $GITHUB_STEP_SUMMARY
+          ## Coverage Report
+
+          - **Total Coverage**: ${{ steps.coverage_summary.outputs.coverage }}%
+          - **Total Lines**: ${{ steps.coverage_summary.outputs.total_lines }}
+          - **Coverage Data**: See artifacts for detailed HTML report
+
+          ${{
+            steps.coverage_summary.outputs.coverage < 70
+            && '### :warning: Coverage is below 70%'
+            || steps.coverage_summary.outputs.coverage < 80
+            && '### :yellow_circle: Coverage is between 70-80%'
+            || '### :green_circle: Good coverage (>80%)'
+          }}
+
+          EOF
+
+      - name: Check coverage threshold
+        run: |
+          COVERAGE="${{ steps.coverage_summary.outputs.coverage }}"
+          THRESHOLD=70
+
+          if (( $(echo "$COVERAGE < $THRESHOLD" | bc -l) )); then
+            echo "::error::Coverage $COVERAGE% is below threshold $THRESHOLD%"
+            exit 1
+          fi
+          echo "::notice::Coverage $COVERAGE% meets threshold $THRESHOLD%"
+
+  coverage-diff:
+    name: "Coverage diff analysis"
+    runs-on: ubuntu-latest
+    if: github.event_name == 'pull_request'
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+          cache: 'pip'
+
+      - name: Install dependencies
+        run: |
+          pip install -e ".[dev]"
+          pip install diff-cover
+
+      - name: Create var directories
+        run: |
+          mkdir -p var/registry var/audit var/logs var/cache
+
+      - name: Generate coverage for PR branch
+        env:
+          PYTHONPATH: ${{ github.workspace }}/src
+        run: |
+          pytest \
+            --cov=platform_god \
+            --cov-report=xml \
+            --cov-report=xml:.coverage-pr.xml \
+            -v \
+            tests/
+          mv coverage.xml .coverage-pr.xml 2>/dev/null || true
+
+      - name: Generate coverage for base branch
+        env:
+          PYTHONPATH: ${{ github.workspace }}/src
+        run: |
+          git stash
+          git checkout ${{ github.base_ref }}
+          pip install -e ".[dev]"
+          pytest \
+            --cov=platform_god \
+            --cov-report=xml \
+            --cov-report=xml:.coverage-base.xml \
+            -v \
+            tests/ || true
+          mv coverage.xml .coverage-base.xml 2>/dev/null || true
+
+      - name: Compare coverage
+        run: |
+          diff-cover .coverage-pr.xml \
+            --compare-branch=${{ github.base_ref }} \
+            --fail-under=0 \
+            || true
+
+      - name: Generate coverage diff comment
+        run: |
+          diff-cover .coverage-pr.xml \
+            --compare-branch=${{ github.base_ref }} \
+            --markdown-report \
+            > coverage-diff.md || true
+
+      - name: Upload coverage diff report
+        uses: actions/upload-artifact@v4
+        with:
+          name: coverage-diff-report
+          path: coverage-diff.md
+          retention-days: 7
+
+  coverage-history:
+    name: "Track coverage history"
+    runs-on: ubuntu-latest
+    if: github.event_name == 'push' && github.ref == 'refs/heads/main'
+
+    permissions:
+      contents: write
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+
+      - name: Download coverage data
+        uses: actions/download-artifact@v4
+        with:
+          name: coverage-data
+          path: ./
+
+      - name: Update coverage history
+        run: |
+          pip install pyyaml
+
+          python -c \"
+          import json
+          from datetime import datetime
+          from pathlib import Path
+
+          with open('coverage.json') as f:
+              data = json.load(f)
+
+          coverage = data['totals']['percent_covered']
+          timestamp = datetime.now().isoformat()
+
+          history_file = Path('docs/coverage-history.json')
+          history = []
+          if history_file.exists():
+              history = json.loads(history_file.read_text())
+
+          history.append({
+              'date': timestamp,
+              'coverage': coverage
+          })
+
+          # Keep last 100 entries
+          history = history[-100:]
+
+          history_file.write_text(json.dumps(history, indent=2))
+          print(f'Coverage: {coverage:.2f}%')
+          \"
+
+      - name: Commit coverage history
+        run: |
+          git config user.name 'github-actions[bot]'
+          git config user.email 'github-actions[bot]@users.noreply.github.com'
+          git add docs/coverage-history.json
+          git diff --quiet && git diff --staged --quiet || git commit -m 'chore: update coverage history'
+          git push
+        continue-on-error: true
+
+  coverage-report-job:
+    name: "Generate standalone coverage report"
+    runs-on: ubuntu-latest
+    if: github.event_name == 'workflow_dispatch'
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+          cache: 'pip'
+
+      - name: Install dependencies
+        run: |
+          pip install -e ".[dev]"
+
+      - name: Create var directories
+        run: |
+          mkdir -p var/registry var/audit var/logs var/cache
+
+      - name: Run full coverage
+        env:
+          PYTHONPATH: ${{ github.workspace }}/src
+        run: |
+          pytest \
+            --cov=platform_god \
+            --cov=tests \
+            --cov-report=html \
+            --cov-report=xml \
+            --cov-report=json \
+            --cov-report=term-missing:skip-covered \
+            -v \
+            tests/
+
+      - name: Generate coverage summary
+        run: |
+          python -c \"
+          import json
+
+          with open('coverage.json') as f:
+              data = json.load(f)
+
+          totals = data['totals']
+          files = data['files']
+
+          print('=' * 60)
+          print('COVERAGE SUMMARY')
+          print('=' * 60)
+          print(f'Total Coverage: {totals[\"percent_covered\"]:.2f}%')
+          print(f'Total Lines: {totals[\"num_statements\"]}')
+          print(f'Covered Lines: {totals[\"covered_statements\"]}')
+          print(f'Missed Lines: {totals[\"missing_statements\"]}')
+          print('=' * 60)
+          print()
+
+          # Find files with low coverage
+          low_coverage = []
+          for filename, file_data in files.items():
+              if file_data['summary']['percent_covered'] < 80:
+                  low_coverage.append((filename, file_data['summary']['percent_covered']))
+
+          if low_coverage:
+              print('Files with coverage < 80%:')
+              for filename, cov in sorted(low_coverage, key=lambda x: x[1]):
+                  print(f'  {cov:5.1f}% - {filename}')
+          \"
+
+      - name: Upload complete coverage report
+        uses: actions/upload-artifact@v4
+        with:
+          name: full-coverage-report
+          path: |
+            htmlcov/
+            coverage.xml
+            coverage.json
+          retention-days: 90

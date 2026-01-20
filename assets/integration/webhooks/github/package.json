@@ -1,0 +1,93 @@
+{
+  "name": "@octokit/webhooks-definitions",
+  "version": "0.0.0-development",
+  "private": "true",
+  "type": "module",
+  "description": "machine-readable, always up-to-date GitHub Webhooks specifications",
+  "keywords": [],
+  "repository": "github:octokit/webhooks",
+  "license": "MIT",
+  "author": "Gregor Martynus (https://github.com/gr2m)",
+  "main": "index.json",
+  "files": [],
+  "scripts": {
+    "build": "tsx bin/octokit-webhooks.mts check --cached",
+    "build:all": "npm run -s build:webhooks && npm run -s build:schema && npm run -s build:types",
+    "build:schema": "tsx bin/octokit-schema.mts",
+    "build:types": "tsx bin/octokit-types.mts",
+    "build:webhooks": "tsx bin/octokit-webhooks.mts update",
+    "lint": "prettier --check '{bin,lib}/**/*.ts' '*.{md,json}' 'bin/docs/*.md' '{payload-examples,payload-schemas,payload-types}/**/*.{mts,md,json,d.ts}' 'test.mts'",
+    "lint:fix": "prettier --write '{bin,lib}/**/*.{ts,mts}' '*.{md,json}' 'bin/docs/*.md' '{payload-examples,payload-schemas,payload-types}/**/*.{mts,md,json,d.ts}' 'test.mts'",
+    "octokit-schema": "tsx bin/octokit-schema.mts",
+    "octokit-webhooks": "tsx bin/octokit-webhooks.mts",
+    "pretest": "npm run -s lint",
+    "test": "npm run build && npm run build:schema && npm run validate -- --continue-on-error && tsx test.mts",
+    "typecheck": "tsc -p . --noEmit",
+    "validate": "npm run -s validate:payloads && npm run -s validate:schema",
+    "validate:payloads": "tsx bin/validate-payload-examples.mts",
+    "validate:schema": "tsx bin/validate-schema.mts"
+  },
+  "prettier": {},
+  "release": {
+    "branches": [
+      "main",
+      {
+        "name": "beta",
+        "prerelease": true
+      }
+    ],
+    "plugins": [
+      "@semantic-release/commit-analyzer",
+      "@semantic-release/release-notes-generator",
+      "@semantic-release/github",
+      [
+        "semantic-release-plugin-update-version-in-files",
+        {
+          "files": [
+            "payload-examples/package.json"
+          ]
+        }
+      ],
+      [
+        "@semantic-release/npm",
+        {
+          "pkgRoot": "payload-types"
+        }
+      ],
+      [
+        "@semantic-release/npm",
+        {
+          "pkgRoot": "payload-examples"
+        }
+      ],
+      [
+        "@semantic-release/npm",
+        {
+          "pkgRoot": "payload-schemas"
+        }
+      ]
+    ]
+  },
+  "devDependencies": {
+    "@types/cheerio": "^0.22.30",
+    "@types/json-diff": "^1.0.0",
+    "@types/json-schema": "^7.0.9",
+    "@types/node": "^22.0.0",
+    "@types/turndown": "^5.0.1",
+    "@types/yargs": "^17.0.8",
+    "ajv": "^8.9.0",
+    "ajv-formats": "^2.1.1",
+    "cheerio": "^1.0.0-rc.10",
+    "fast-deep-equal": "^3.1.3",
+    "got": "^14.0.0",
+    "json-diff": "^1.0.0",
+    "json-schema-to-typescript": "^15.0.0",
+    "prettier": "3.5.3",
+    "prettier-plugin-packagejson": "^2.2.15",
+    "semantic-release-plugin-update-version-in-files": "^2.0.0",
+    "turndown": "^7.1.1",
+    "typescript": "^5.0.0",
+    "tsx": "^4.19.3",
+    "yargs": "^17.3.1"
+  }
+}

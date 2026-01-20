@@ -1,0 +1,25 @@
+{
+  "name": "@platform-god/ui",
+  "version": "0.1.0",
+  "description": "Read-only UI for Platform God - Node.js + Ink",
+  "type": "module",
+  "private": true,
+  "bin": {
+    "pg-ui": "./index.js"
+  },
+  "scripts": {
+    "start": "node index.js",
+    "cli": "node index.js",
+    "dashboard": "node index.js --dashboard"
+  },
+  "dependencies": {
+    "ink": "^4.4.1",
+    "react": "^18.2.0",
+    "better-sqlite3": "^9.2.2",
+    "chalk": "^5.3.0",
+    "cli-table3": "^0.6.3"
+  },
+  "engines": {
+    "node": ">=18.0.0"
+  }
+}

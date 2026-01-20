@@ -1,0 +1,3329 @@
+{
+  "openapi": "3.1.0",
+  "info": {
+    "title": "Platform God API",
+    "description": "REST API for agent-driven repository governance",
+    "version": "0.0.0"
+  },
+  "paths": {
+    "/health/": {
+      "get": {
+        "tags": [
+          "Health"
+        ],
+        "summary": "Health Check",
+        "description": "Perform health check on API and dependencies.\n\nReturns status of:\n- Database/State storage (var/state/)\n- Registry storage (var/registry/)\n- Disk space availability\n- LLM API connectivity (optional, with include_llm=true)\n- Agents registry\n\nThe endpoint uses cached results (30-second TTL) for fast responses.\nUse force_refresh=true to bypass cache.\n\nArgs:\n    include_llm: Whether to check LLM API connectivity\n    detailed: Return detailed health information\n    force_refresh: Force fresh health checks bypassing cache\n\nReturns:\n    HealthResponse with status and component information",
+        "operationId": "health_check_health__get",
+        "parameters": [
+          {
+            "name": "include_llm",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "type": "boolean",
+              "description": "Include LLM connectivity check",
+              "default": false,
+              "title": "Include Llm"
+            },
+            "description": "Include LLM connectivity check"
+          },
+          {
+            "name": "detailed",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "type": "boolean",
+              "description": "Return detailed health information",
+              "default": false,
+              "title": "Detailed"
+            },
+            "description": "Return detailed health information"
+          },
+          {
+            "name": "force_refresh",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "type": "boolean",
+              "description": "Force fresh health checks",
+              "default": false,
+              "title": "Force Refresh"
+            },
+            "description": "Force fresh health checks"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HealthResponse"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/health": {
+      "get": {
+        "tags": [
+          "Health"
+        ],
+        "summary": "Health Check",
+        "description": "Perform health check on API and dependencies.\n\nReturns status of:\n- Database/State storage (var/state/)\n- Registry storage (var/registry/)\n- Disk space availability\n- LLM API connectivity (optional, with include_llm=true)\n- Agents registry\n\nThe endpoint uses cached results (30-second TTL) for fast responses.\nUse force_refresh=true to bypass cache.\n\nArgs:\n    include_llm: Whether to check LLM API connectivity\n    detailed: Return detailed health information\n    force_refresh: Force fresh health checks bypassing cache\n\nReturns:\n    HealthResponse with status and component information",
+        "operationId": "health_check_health_get",
+        "parameters": [
+          {
+            "name": "include_llm",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "type": "boolean",
+              "description": "Include LLM connectivity check",
+              "default": false,
+              "title": "Include Llm"
+            },
+            "description": "Include LLM connectivity check"
+          },
+          {
+            "name": "detailed",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "type": "boolean",
+              "description": "Return detailed health information",
+              "default": false,
+              "title": "Detailed"
+            },
+            "description": "Return detailed health information"
+          },
+          {
+            "name": "force_refresh",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "type": "boolean",
+              "description": "Force fresh health checks",
+              "default": false,
+              "title": "Force Refresh"
+            },
+            "description": "Force fresh health checks"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HealthResponse"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/health/ping": {
+      "get": {
+        "tags": [
+          "Health"
+        ],
+        "summary": "Ping",
+        "description": "Simple ping endpoint for load balancer checks.\n\nThis endpoint always succeeds and returns immediately.\nUse for quick liveness checks.\n\nReturns:\n    {\"pong\": \"timestamp\"}",
+        "operationId": "ping_health_ping_get",
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "additionalProperties": {
+                    "type": "string"
+                  },
+                  "type": "object",
+                  "title": "Response Ping Health Ping Get"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/health/detailed": {
+      "get": {
+        "tags": [
+          "Health"
+        ],
+        "summary": "Health Detailed",
+        "description": "Detailed health check with full component information.\n\nReturns comprehensive health status including:\n- Individual check results with timings\n- Disk space details\n- Registry integrity information\n- System resource status\n\nArgs:\n    include_llm: Whether to check LLM API connectivity\n\nReturns:\n    Detailed health information dictionary",
+        "operationId": "health_detailed_health_detailed_get",
+        "parameters": [
+          {
+            "name": "include_llm",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "type": "boolean",
+              "description": "Include LLM connectivity check",
+              "default": false,
+              "title": "Include Llm"
+            },
+            "description": "Include LLM connectivity check"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "additionalProperties": true,
+                  "title": "Response Health Detailed Health Detailed Get"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/health/ready": {
+      "get": {
+        "tags": [
+          "Health"
+        ],
+        "summary": "Readiness",
+        "description": "Readiness check for Kubernetes/container orchestration.\n\nReturns 200 when the service is ready to handle requests.\nThis checks that core dependencies are accessible.\n\nReturns:\n    Readiness status with details",
+        "operationId": "readiness_health_ready_get",
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "additionalProperties": true,
+                  "type": "object",
+                  "title": "Response Readiness Health Ready Get"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/health/live": {
+      "get": {
+        "tags": [
+          "Health"
+        ],
+        "summary": "Liveness",
+        "description": "Liveness check for Kubernetes/container orchestration.\n\nReturns 200 if the service is running.\nThis is a lightweight check that always succeeds if the process is alive.\n\nReturns:\n    Liveness status",
+        "operationId": "liveness_health_live_get",
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "additionalProperties": {
+                    "type": "string"
+                  },
+                  "type": "object",
+                  "title": "Response Liveness Health Live Get"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/v1/agents": {
+      "get": {
+        "tags": [
+          "Agents"
+        ],
+        "summary": "List Agents",
+        "description": "List all available agents.\n\nCan be filtered by agent_class or permissions via query parameters.\n\nQuery Parameters:\n    agent_class: Filter by agent class (e.g., \"READ_ONLY_SCAN\")\n    permissions: Filter by permission level (e.g., \"read_only\")\n    limit: Maximum results (default: 100, max: 1000)\n    offset: Number of results to skip (default: 0)\n\nReturns:\n    AgentListResponse with filtered agent list",
+        "operationId": "list_agents_api_v1_agents_get",
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/AgentListResponse"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/v1/agents/{agent_name}": {
+      "get": {
+        "tags": [
+          "Agents"
+        ],
+        "summary": "Get Agent",
+        "description": "Get detailed information about a specific agent.\n\nArgs:\n    agent_name: Name of the agent to retrieve\n\nReturns:\n    AgentResponse with detailed agent information\n\nRaises:\n    NotFoundError: If agent does not exist",
+        "operationId": "get_agent_api_v1_agents__agent_name__get",
+        "parameters": [
+          {
+            "name": "agent_name",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "title": "Agent Name"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/AgentResponse"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/v1/agents/execute": {
+      "post": {
+        "tags": [
+          "Agents"
+        ],
+        "summary": "Execute Agent",
+        "description": "Execute a single agent.\n\nExecution happens synchronously for now. For long-running agents,\nconsider using the chains endpoint or implement async execution.\n\nArgs:\n    request: Agent execution request\n    background_tasks: FastAPI background tasks\n\nReturns:\n    AgentExecuteResponse with execution result\n\nRaises:\n    ValidationError: If request validation fails\n    NotFoundError: If specified agent doesn't exist",
+        "operationId": "execute_agent_api_v1_agents_execute_post",
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/AgentExecuteRequest"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "202": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/AgentExecuteResponse"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/v1/agents/classes/list": {
+      "get": {
+        "tags": [
+          "Agents"
+        ],
+        "summary": "List Agent Classes",
+        "description": "List all available agent classes with descriptions.\n\nReturns:\n    Dictionary mapping agent class names to descriptions",
+        "operationId": "list_agent_classes_api_v1_agents_classes_list_get",
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "additionalProperties": {
+                    "type": "string"
+                  },
+                  "type": "object",
+                  "title": "Response List Agent Classes Api V1 Agents Classes List Get"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/v1/agents/permissions/list": {
+      "get": {
+        "tags": [
+          "Agents"
+        ],
+        "summary": "List Permission Levels",
+        "description": "List all permission levels with descriptions.\n\nReturns:\n    Dictionary mapping permission levels to descriptions",
+        "operationId": "list_permission_levels_api_v1_agents_permissions_list_get",
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "additionalProperties": {
+                    "type": "string"
+                  },
+                  "type": "object",
+                  "title": "Response List Permission Levels Api V1 Agents Permissions List Get"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/v1/chains": {
+      "get": {
+        "tags": [
+          "Chains"
+        ],
+        "summary": "List Chains",
+        "description": "List all available predefined chain types.\n\nReturns:\n    ChainListResponse with available chain types",
+        "operationId": "list_chains_api_v1_chains_get",
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ChainListResponse"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/v1/chains/execute": {
+      "post": {
+        "tags": [
+          "Chains"
+        ],
+        "summary": "Execute Chain",
+        "description": "Execute an agent chain.\n\nChains execute synchronously. For long-running chains,\nconsider implementing async execution with status polling.\n\nArgs:\n    request: Chain execution request\n    background_tasks: FastAPI background tasks\n\nReturns:\n    ChainExecuteResponse with execution results\n\nRaises:\n    ValidationError: If request validation fails\n    NotFoundError: If referenced agents don't exist",
+        "operationId": "execute_chain_api_v1_chains_execute_post",
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/ChainExecuteRequest"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "202": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ChainExecuteResponse"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/v1/chains/{chain_name}/cancel": {
+      "post": {
+        "tags": [
+          "Chains"
+        ],
+        "summary": "Cancel Chain",
+        "description": "Cancel a running chain.\n\nNote: Current implementation doesn't support true cancellation\nof running chains. This endpoint is provided for API completeness\nand future implementation.\n\nArgs:\n    chain_name: Name of the chain to cancel\n    request: Optional cancellation reason\n\nReturns:\n    Cancellation confirmation\n\nRaises:\n    NotFoundError: If no running chain found",
+        "operationId": "cancel_chain_api_v1_chains__chain_name__cancel_post",
+        "parameters": [
+          {
+            "name": "chain_name",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "title": "Chain Name"
+            }
+          }
+        ],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "anyOf": [
+                  {
+                    "$ref": "#/components/schemas/ChainCancelRequest"
+                  },
+                  {
+                    "type": "null"
+                  }
+                ],
+                "title": "Request"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "additionalProperties": {
+                    "type": "string"
+                  },
+                  "title": "Response Cancel Chain Api V1 Chains  Chain Name  Cancel Post"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/v1/chains/{chain_name}": {
+      "get": {
+        "tags": [
+          "Chains"
+        ],
+        "summary": "Get Chain Info",
+        "description": "Get information about a specific chain type.\n\nArgs:\n    chain_name: Name of the chain\n\nReturns:\n    ChainTypeInfo with chain details\n\nRaises:\n    NotFoundError: If chain type doesn't exist",
+        "operationId": "get_chain_info_api_v1_chains__chain_name__get",
+        "parameters": [
+          {
+            "name": "chain_name",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "title": "Chain Name"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ChainTypeInfo"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/v1/runs": {
+      "get": {
+        "tags": [
+          "Runs"
+        ],
+        "summary": "List Runs",
+        "description": "List chain execution runs.\n\nSupports filtering by repository, chain name, and status.\n\nQuery Parameters:\n    repository_root: Filter by repository root path\n    chain_name: Filter by chain name\n    status: Filter by run status (pending, running, completed, failed, cancelled)\n    limit: Maximum results (default: 50, max: 500)\n    offset: Number of results to skip (default: 0)\n\nReturns:\n    RunListResponse with matching runs",
+        "operationId": "list_runs_api_v1_runs_get",
+        "parameters": [
+          {
+            "name": "repository_root",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "type": "string"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "description": "Filter by repository root",
+              "title": "Repository Root"
+            },
+            "description": "Filter by repository root"
+          },
+          {
+            "name": "chain_name",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "type": "string"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "description": "Filter by chain name",
+              "title": "Chain Name"
+            },
+            "description": "Filter by chain name"
+          },
+          {
+            "name": "status",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "type": "string"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "description": "Filter by run status",
+              "title": "Status"
+            },
+            "description": "Filter by run status"
+          },
+          {
+            "name": "limit",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "type": "integer",
+              "maximum": 500,
+              "minimum": 1,
+              "description": "Maximum results",
+              "default": 50,
+              "title": "Limit"
+            },
+            "description": "Maximum results"
+          },
+          {
+            "name": "offset",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "type": "integer",
+              "minimum": 0,
+              "description": "Results to skip",
+              "default": 0,
+              "title": "Offset"
+            },
+            "description": "Results to skip"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/RunListResponse"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/v1/runs/recent": {
+      "get": {
+        "tags": [
+          "Runs"
+        ],
+        "summary": "List Recent Runs",
+        "description": "List recent chain runs across all repositories.\n\nArgs:\n    limit: Number of recent runs to return (default: 10, max: 100)\n\nReturns:\n    RunListResponse with recent runs",
+        "operationId": "list_recent_runs_api_v1_runs_recent_get",
+        "parameters": [
+          {
+            "name": "limit",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "type": "integer",
+              "maximum": 100,
+              "minimum": 1,
+              "description": "Number of recent runs",
+              "default": 10,
+              "title": "Limit"
+            },
+            "description": "Number of recent runs"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/RunListResponse"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/v1/runs/{run_id}": {
+      "get": {
+        "tags": [
+          "Runs"
+        ],
+        "summary": "Get Run",
+        "description": "Get detailed information about a specific run.\n\nArgs:\n    run_id: Unique run identifier\n\nReturns:\n    RunDetail with full run information\n\nRaises:\n    NotFoundError: If run doesn't exist",
+        "operationId": "get_run_api_v1_runs__run_id__get",
+        "parameters": [
+          {
+            "name": "run_id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "title": "Run Id"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/RunDetail"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      },
+      "delete": {
+        "tags": [
+          "Runs"
+        ],
+        "summary": "Delete Run",
+        "description": "Delete a specific run record.\n\nUseful for cleaning up old run data.\n\nArgs:\n    run_id: Unique run identifier\n\nRaises:\n    NotFoundError: If run doesn't exist",
+        "operationId": "delete_run_api_v1_runs__run_id__delete",
+        "parameters": [
+          {
+            "name": "run_id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "title": "Run Id"
+            }
+          }
+        ],
+        "responses": {
+          "204": {
+            "description": "Successful Response"
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/v1/runs/repository/{repository_name}": {
+      "get": {
+        "tags": [
+          "Runs"
+        ],
+        "summary": "List Runs By Repository",
+        "description": "List runs for a specific repository by name.\n\nArgs:\n    repository_name: Repository name (path component)\n    limit: Maximum results\n    offset: Results to skip\n\nReturns:\n    RunListResponse with matching runs\n\nRaises:\n    NotFoundError: If repository not found in any runs",
+        "operationId": "list_runs_by_repository_api_v1_runs_repository__repository_name__get",
+        "parameters": [
+          {
+            "name": "repository_name",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "title": "Repository Name"
+            }
+          },
+          {
+            "name": "limit",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "type": "integer",
+              "maximum": 500,
+              "minimum": 1,
+              "default": 50,
+              "title": "Limit"
+            }
+          },
+          {
+            "name": "offset",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "type": "integer",
+              "minimum": 0,
+              "default": 0,
+              "title": "Offset"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/RunListResponse"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/v1/runs/chain/{chain_name}/latest": {
+      "get": {
+        "tags": [
+          "Runs"
+        ],
+        "summary": "Get Latest Run For Chain",
+        "description": "Get the latest run for a specific chain and repository.\n\nArgs:\n    chain_name: Name of the chain\n    repository_root: Repository root path\n\nReturns:\n    RunDetail with latest run information\n\nRaises:\n    NotFoundError: If no run found",
+        "operationId": "get_latest_run_for_chain_api_v1_runs_chain__chain_name__latest_get",
+        "parameters": [
+          {
+            "name": "chain_name",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "title": "Chain Name"
+            }
+          },
+          {
+            "name": "repository_root",
+            "in": "query",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "description": "Repository root path",
+              "title": "Repository Root"
+            },
+            "description": "Repository root path"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/RunDetail"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/v1/registry": {
+      "get": {
+        "tags": [
+          "Registry"
+        ],
+        "summary": "List Entities",
+        "description": "List registry entities.\n\nSupports filtering by entity type.\n\nQuery Parameters:\n    entity_type: Filter by entity type (e.g., 'repository', 'agent', 'finding')\n    limit: Maximum results (default: 100, max: 1000)\n    offset: Number of results to skip (default: 0)\n\nReturns:\n    RegistryListResponse with matching entities",
+        "operationId": "list_entities_api_v1_registry_get",
+        "parameters": [
+          {
+            "name": "entity_type",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "type": "string"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "description": "Filter by entity type",
+              "title": "Entity Type"
+            },
+            "description": "Filter by entity type"
+          },
+          {
+            "name": "limit",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "type": "integer",
+              "maximum": 1000,
+              "minimum": 1,
+              "description": "Maximum results",
+              "default": 100,
+              "title": "Limit"
+            },
+            "description": "Maximum results"
+          },
+          {
+            "name": "offset",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "type": "integer",
+              "minimum": 0,
+              "description": "Results to skip",
+              "default": 0,
+              "title": "Offset"
+            },
+            "description": "Results to skip"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/RegistryListResponse"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      },
+      "post": {
+        "tags": [
+          "Registry"
+        ],
+        "summary": "Register Entity",
+        "description": "Register a new entity in the registry.\n\nArgs:\n    request: Entity registration request\n\nReturns:\n    RegistryOperationResponse with operation result\n\nRaises:\n    ConflictError: If entity already exists",
+        "operationId": "register_entity_api_v1_registry_post",
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/RegistryEntityRequest"
+              }
+            }
+          }
+        },
+        "responses": {
+          "201": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/RegistryOperationResponse"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/v1/registry/types/list": {
+      "get": {
+        "tags": [
+          "Registry"
+        ],
+        "summary": "List Entity Types",
+        "description": "List all entity types currently in the registry.\n\nReturns:\n    List of entity type names",
+        "operationId": "list_entity_types_api_v1_registry_types_list_get",
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "items": {
+                    "type": "string"
+                  },
+                  "type": "array",
+                  "title": "Response List Entity Types Api V1 Registry Types List Get"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/v1/registry/index": {
+      "get": {
+        "tags": [
+          "Registry"
+        ],
+        "summary": "Get Registry Index",
+        "description": "Get the registry index with all entity types and counts.\n\nReturns:\n    Dictionary with registry index information",
+        "operationId": "get_registry_index_api_v1_registry_index_get",
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "additionalProperties": true,
+                  "type": "object",
+                  "title": "Response Get Registry Index Api V1 Registry Index Get"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/v1/registry/{entity_type}/{entity_id}": {
+      "get": {
+        "tags": [
+          "Registry"
+        ],
+        "summary": "Get Entity",
+        "description": "Get a specific entity from the registry.\n\nArgs:\n    entity_type: Type of entity\n    entity_id: Unique entity identifier\n\nReturns:\n    RegistryEntityResponse with entity data\n\nRaises:\n    NotFoundError: If entity doesn't exist",
+        "operationId": "get_entity_api_v1_registry__entity_type___entity_id__get",
+        "parameters": [
+          {
+            "name": "entity_type",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "title": "Entity Type"
+            }
+          },
+          {
+            "name": "entity_id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "title": "Entity Id"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/RegistryEntityResponse"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      },
+      "put": {
+        "tags": [
+          "Registry"
+        ],
+        "summary": "Update Entity",
+        "description": "Update an existing entity in the registry.\n\nArgs:\n    entity_type: Type of entity\n    entity_id: Unique entity identifier\n    request: Update request with new data\n\nReturns:\n    RegistryOperationResponse with operation result\n\nRaises:\n    NotFoundError: If entity doesn't exist",
+        "operationId": "update_entity_api_v1_registry__entity_type___entity_id__put",
+        "parameters": [
+          {
+            "name": "entity_type",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "title": "Entity Type"
+            }
+          },
+          {
+            "name": "entity_id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "title": "Entity Id"
+            }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/RegistryUpdateRequest"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/RegistryOperationResponse"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      },
+      "delete": {
+        "tags": [
+          "Registry"
+        ],
+        "summary": "Deregister Entity",
+        "description": "Remove an entity from the registry.\n\nArgs:\n    entity_type: Type of entity\n    entity_id: Unique entity identifier\n\nReturns:\n    RegistryOperationResponse with operation result\n\nRaises:\n    NotFoundError: If entity doesn't exist",
+        "operationId": "deregister_entity_api_v1_registry__entity_type___entity_id__delete",
+        "parameters": [
+          {
+            "name": "entity_type",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "title": "Entity Type"
+            }
+          },
+          {
+            "name": "entity_id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "title": "Entity Id"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/RegistryOperationResponse"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/v1/registry/{entity_type}/{entity_id}/verify": {
+      "post": {
+        "tags": [
+          "Registry"
+        ],
+        "summary": "Verify Entity Integrity",
+        "description": "Verify the integrity of an entity by comparing checksums.\n\nArgs:\n    entity_type: Type of entity\n    entity_id: Unique entity identifier\n\nReturns:\n    Dictionary with verification result\n\nRaises:\n    NotFoundError: If entity doesn't exist",
+        "operationId": "verify_entity_integrity_api_v1_registry__entity_type___entity_id__verify_post",
+        "parameters": [
+          {
+            "name": "entity_type",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "title": "Entity Type"
+            }
+          },
+          {
+            "name": "entity_id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "title": "Entity Id"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "additionalProperties": true,
+                  "title": "Response Verify Entity Integrity Api V1 Registry  Entity Type   Entity Id  Verify Post"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/metrics/": {
+      "get": {
+        "tags": [
+          "Metrics"
+        ],
+        "summary": "Get Metrics",
+        "description": "Get system and application metrics.\n\nReturns metrics for:\n- Agent executions (counts, success rates, timings)\n- Chain executions (counts, success rates, timings)\n- System statistics (total runs, active repositories, etc.)\n\nArgs:\n    format: Response format - \"json\" (default) or \"prometheus\"\n\nReturns:\n    Metrics in requested format",
+        "operationId": "get_metrics_metrics__get",
+        "parameters": [
+          {
+            "name": "format",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "type": "string",
+              "description": "Response format: 'json' or 'prometheus'",
+              "default": "json",
+              "title": "Format"
+            },
+            "description": "Response format: 'json' or 'prometheus'"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "additionalProperties": true,
+                  "title": "Response Get Metrics Metrics  Get"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/metrics": {
+      "get": {
+        "tags": [
+          "Metrics"
+        ],
+        "summary": "Get Metrics",
+        "description": "Get system and application metrics.\n\nReturns metrics for:\n- Agent executions (counts, success rates, timings)\n- Chain executions (counts, success rates, timings)\n- System statistics (total runs, active repositories, etc.)\n\nArgs:\n    format: Response format - \"json\" (default) or \"prometheus\"\n\nReturns:\n    Metrics in requested format",
+        "operationId": "get_metrics_metrics_get",
+        "parameters": [
+          {
+            "name": "format",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "type": "string",
+              "description": "Response format: 'json' or 'prometheus'",
+              "default": "json",
+              "title": "Format"
+            },
+            "description": "Response format: 'json' or 'prometheus'"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "additionalProperties": true,
+                  "title": "Response Get Metrics Metrics Get"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/metrics/prometheus": {
+      "get": {
+        "tags": [
+          "Metrics"
+        ],
+        "summary": "Get Prometheus Metrics",
+        "description": "Get metrics in Prometheus text format.\n\nReturns metrics in Prometheus exposition format for scraping by\nPrometheus or compatible monitoring systems.\n\nMetrics include:\n- platform_god_agent_executions_total\n- platform_god_chain_executions_total\n- platform_god_errors_total\n- platform_god_agent_success_rate\n- platform_god_chain_success_rate\n- And more...\n\nReturns:\n    Prometheus-formatted metrics as plain text",
+        "operationId": "get_prometheus_metrics_metrics_prometheus_get",
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "text/plain": {
+                "schema": {
+                  "type": "string"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/metrics/agents": {
+      "get": {
+        "tags": [
+          "Metrics"
+        ],
+        "summary": "Get Agent Metrics",
+        "description": "Get metrics for agent executions.\n\nArgs:\n    agent_name: Optional specific agent name\n\nReturns:\n    Agent metrics dictionary",
+        "operationId": "get_agent_metrics_metrics_agents_get",
+        "parameters": [
+          {
+            "name": "agent_name",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "type": "string"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "description": "Specific agent name",
+              "title": "Agent Name"
+            },
+            "description": "Specific agent name"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "additionalProperties": true,
+                  "title": "Response Get Agent Metrics Metrics Agents Get"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/metrics/chains": {
+      "get": {
+        "tags": [
+          "Metrics"
+        ],
+        "summary": "Get Chain Metrics",
+        "description": "Get metrics for chain executions.\n\nArgs:\n    chain_name: Optional specific chain name\n\nReturns:\n    Chain metrics dictionary",
+        "operationId": "get_chain_metrics_metrics_chains_get",
+        "parameters": [
+          {
+            "name": "chain_name",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "type": "string"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "description": "Specific chain name",
+              "title": "Chain Name"
+            },
+            "description": "Specific chain name"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "additionalProperties": true,
+                  "title": "Response Get Chain Metrics Metrics Chains Get"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/metrics/system": {
+      "get": {
+        "tags": [
+          "Metrics"
+        ],
+        "summary": "Get System Metrics",
+        "description": "Get system-level metrics.\n\nReturns statistics including:\n- Total executions (agents and chains)\n- Error counts\n- Active repositories\n- Registry entity count\n- Uptime information\n\nReturns:\n    System metrics dictionary",
+        "operationId": "get_system_metrics_metrics_system_get",
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "additionalProperties": true,
+                  "type": "object",
+                  "title": "Response Get System Metrics Metrics System Get"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/metrics/reset": {
+      "post": {
+        "tags": [
+          "Metrics"
+        ],
+        "summary": "Reset Metrics",
+        "description": "Reset metrics.\n\nUse with caution - this will clear collected metrics.\n\nArgs:\n    agent_name: Reset only this agent's metrics\n    chain_name: Reset only this chain's metrics\n\nReturns:\n    Confirmation of reset operation",
+        "operationId": "reset_metrics_metrics_reset_post",
+        "parameters": [
+          {
+            "name": "agent_name",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "type": "string"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "description": "Reset metrics for specific agent",
+              "title": "Agent Name"
+            },
+            "description": "Reset metrics for specific agent"
+          },
+          {
+            "name": "chain_name",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "type": "string"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "description": "Reset metrics for specific chain",
+              "title": "Chain Name"
+            },
+            "description": "Reset metrics for specific chain"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "additionalProperties": true,
+                  "title": "Response Reset Metrics Metrics Reset Post"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/metrics/save": {
+      "post": {
+        "tags": [
+          "Metrics"
+        ],
+        "summary": "Save Metrics",
+        "description": "Persist metrics to disk.\n\nManually trigger metrics persistence. Metrics are also\nautomatically saved periodically.\n\nReturns:\n    Confirmation of save operation",
+        "operationId": "save_metrics_metrics_save_post",
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "additionalProperties": true,
+                  "type": "object",
+                  "title": "Response Save Metrics Metrics Save Post"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/v1/auth/token": {
+      "post": {
+        "tags": [
+          "Authentication"
+        ],
+        "summary": "Generate Token",
+        "description": "Generate a JWT access token.\n\nThis endpoint creates a signed JWT token for the specified user.\nThe token can be used for authentication via the Authorization header.\n\n**Note:** This endpoint is for administrative/token generation purposes.\nIn production, consider restricting access to this endpoint.\n\nArgs:\n    request: Token generation request\n    http_request: FastAPI Request object\n\nReturns:\n    Generated token information\n\nRaises:\n    TokenGenerationError: If token generation fails",
+        "operationId": "generate_token_api_v1_auth_token_post",
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/TokenRequest"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "201": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/TokenResponse"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/v1/auth/token/validate": {
+      "post": {
+        "tags": [
+          "Authentication"
+        ],
+        "summary": "Validate Token Endpoint",
+        "description": "Validate a JWT token.\n\nThis endpoint checks if a token is valid and returns its payload information.\n\nArgs:\n    request: Token validation request\n\nReturns:\n    Token validation result",
+        "operationId": "validate_token_endpoint_api_v1_auth_token_validate_post",
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/TokenValidateRequest"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/TokenValidateResponse"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/v1/auth/token/decode": {
+      "get": {
+        "tags": [
+          "Authentication"
+        ],
+        "summary": "Decode Token Endpoint",
+        "description": "Decode and return the current JWT token payload.\n\nThis endpoint extracts and returns the JWT payload from the Authorization header.\n\nArgs:\n    authorization: Authorization header value\n\nReturns:\n    Decoded token payload\n\nRaises:\n    InvalidTokenError: If token is invalid\n    ExpiredTokenError: If token has expired",
+        "operationId": "decode_token_endpoint_api_v1_auth_token_decode_get",
+        "parameters": [
+          {
+            "name": "authorization",
+            "in": "header",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "description": "Authorization header with Bearer token",
+              "title": "Authorization"
+            },
+            "description": "Authorization header with Bearer token"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "additionalProperties": true,
+                  "title": "Response Decode Token Endpoint Api V1 Auth Token Decode Get"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/v1/auth/api-key/hash": {
+      "post": {
+        "tags": [
+          "Authentication"
+        ],
+        "summary": "Hash Api Key Endpoint",
+        "description": "Hash an API key for secure storage.\n\nThis endpoint generates a SHA-256 HMAC hash of an API key.\nUse this to generate hashes for the PG_API_KEYS environment variable.\n\n**Security Note:** Never store raw API keys. Always store and use hashes.\n\nArgs:\n    request: API key to hash\n\nReturns:\n    The API key hash",
+        "operationId": "hash_api_key_endpoint_api_v1_auth_api_key_hash_post",
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/ApiKeyHashRequest"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiKeyHashResponse"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/v1/auth/api-key/validate": {
+      "post": {
+        "tags": [
+          "Authentication"
+        ],
+        "summary": "Validate Api Key Endpoint",
+        "description": "Validate an API key against a stored hash.\n\nThis endpoint checks if a provided API key matches the stored hash.\n\nArgs:\n    request: API key validation request\n\nReturns:\n    Validation result",
+        "operationId": "validate_api_key_endpoint_api_v1_auth_api_key_validate_post",
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/ApiKeyValidateRequest"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiKeyValidateResponse"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/v1/auth/me": {
+      "get": {
+        "tags": [
+          "Authentication"
+        ],
+        "summary": "Get Current User",
+        "description": "Get information about the current authenticated user.\n\nReturns user information from the JWT token or other authentication method.\n\nArgs:\n    http_request: FastAPI Request object\n\nReturns:\n    Current user information",
+        "operationId": "get_current_user_api_v1_auth_me_get",
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "additionalProperties": true,
+                  "type": "object",
+                  "title": "Response Get Current User Api V1 Auth Me Get"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/v1/auth/config": {
+      "get": {
+        "tags": [
+          "Authentication"
+        ],
+        "summary": "Get Auth Config",
+        "description": "Get authentication configuration information.\n\nReturns public-facing configuration details about the authentication system.\n\nReturns:\n    Authentication configuration",
+        "operationId": "get_auth_config_api_v1_auth_config_get",
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "additionalProperties": true,
+                  "type": "object",
+                  "title": "Response Get Auth Config Api V1 Auth Config Get"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/": {
+      "get": {
+        "tags": [
+          "Root"
+        ],
+        "summary": "Root",
+        "description": "Root endpoint with API information.",
+        "operationId": "root__get",
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "additionalProperties": true,
+                  "type": "object",
+                  "title": "Response Root  Get"
+                }
+              }
+            }
+          }
+        }
+      }
+    }
+  },
+  "components": {
+    "schemas": {
+      "AgentClass": {
+        "type": "string",
+        "enum": [
+          "READ_ONLY_SCAN",
+          "PLANNING_SYNTHESIS",
+          "REGISTRY_STATE",
+          "WRITE_GATED",
+          "CONTROL_PLANE"
+        ],
+        "title": "AgentClass",
+        "description": "Canonical agent classes defining permissions and scope."
+      },
+      "AgentExecuteRequest": {
+        "properties": {
+          "repository_root": {
+            "type": "string",
+            "title": "Repository Root",
+            "description": "Absolute path to the repository root",
+            "examples": [
+              "/path/to/repository"
+            ]
+          },
+          "mode": {
+            "$ref": "#/components/schemas/ExecutionMode",
+            "description": "Execution mode",
+            "default": "dry_run"
+          },
+          "input_data": {
+            "additionalProperties": true,
+            "type": "object",
+            "title": "Input Data",
+            "description": "Additional input data for the agent"
+          },
+          "timeout_seconds": {
+            "anyOf": [
+              {
+                "type": "integer",
+                "maximum": 3600.0,
+                "minimum": 1.0
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Timeout Seconds",
+            "description": "Maximum execution time in seconds",
+            "default": 300
+          }
+        },
+        "additionalProperties": false,
+        "type": "object",
+        "required": [
+          "repository_root"
+        ],
+        "title": "AgentExecuteRequest",
+        "description": "Request to execute a single agent."
+      },
+      "AgentExecuteResponse": {
+        "properties": {
+          "result": {
+            "$ref": "#/components/schemas/AgentExecutionResult",
+            "description": "Execution result"
+          },
+          "mode": {
+            "type": "string",
+            "title": "Mode",
+            "description": "Execution mode used"
+          }
+        },
+        "additionalProperties": false,
+        "type": "object",
+        "required": [
+          "result",
+          "mode"
+        ],
+        "title": "AgentExecuteResponse",
+        "description": "Response model for agent execution."
+      },
+      "AgentExecutionResult": {
+        "properties": {
+          "agent_name": {
+            "type": "string",
+            "title": "Agent Name",
+            "description": "Agent name"
+          },
+          "agent_class": {
+            "$ref": "#/components/schemas/AgentClass",
+            "description": "Agent class"
+          },
+          "status": {
+            "$ref": "#/components/schemas/AgentStatus",
+            "description": "Execution status"
+          },
+          "output_data": {
+            "anyOf": [
+              {
+                "additionalProperties": true,
+                "type": "object"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Output Data",
+            "description": "Agent output"
+          },
+          "error_message": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Error Message",
+            "description": "Error message if failed"
+          },
+          "execution_time_ms": {
+            "anyOf": [
+              {
+                "type": "number"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Execution Time Ms",
+            "description": "Execution time in milliseconds"
+          },
+          "timestamp": {
+            "type": "string",
+            "title": "Timestamp",
+            "description": "Execution timestamp"
+          }
+        },
+        "additionalProperties": false,
+        "type": "object",
+        "required": [
+          "agent_name",
+          "agent_class",
+          "status",
+          "timestamp"
+        ],
+        "title": "AgentExecutionResult",
+        "description": "Result of an agent execution."
+      },
+      "AgentListResponse": {
+        "properties": {
+          "agents": {
+            "items": {
+              "$ref": "#/components/schemas/AgentResponse"
+            },
+            "type": "array",
+            "title": "Agents",
+            "description": "List of agents"
+          },
+          "total": {
+            "type": "integer",
+            "title": "Total",
+            "description": "Total count of agents"
+          },
+          "limit": {
+            "type": "integer",
+            "title": "Limit",
+            "description": "Response limit"
+          },
+          "offset": {
+            "type": "integer",
+            "title": "Offset",
+            "description": "Response offset"
+          }
+        },
+        "additionalProperties": false,
+        "type": "object",
+        "required": [
+          "agents",
+          "total",
+          "limit",
+          "offset"
+        ],
+        "title": "AgentListResponse",
+        "description": "Response model for listing agents."
+      },
+      "AgentPermissionLevel": {
+        "type": "string",
+        "enum": [
+          "read_only",
+          "write_gated",
+          "control_plane"
+        ],
+        "title": "AgentPermissionLevel",
+        "description": "Permission levels for filesystem access."
+      },
+      "AgentResponse": {
+        "properties": {
+          "name": {
+            "type": "string",
+            "title": "Name",
+            "description": "Agent name"
+          },
+          "agent_class": {
+            "$ref": "#/components/schemas/AgentClass",
+            "description": "Agent class"
+          },
+          "role": {
+            "type": "string",
+            "title": "Role",
+            "description": "Agent role description"
+          },
+          "goal": {
+            "type": "string",
+            "title": "Goal",
+            "description": "Agent goal"
+          },
+          "permissions": {
+            "$ref": "#/components/schemas/AgentPermissionLevel",
+            "description": "Permission level"
+          },
+          "allowed_paths": {
+            "items": {
+              "type": "string"
+            },
+            "type": "array",
+            "title": "Allowed Paths",
+            "description": "Allowed write paths"
+          },
+          "disallowed_paths": {
+            "items": {
+              "type": "string"
+            },
+            "type": "array",
+            "title": "Disallowed Paths",
+            "description": "Disallowed paths"
+          },
+          "input_schema": {
+            "additionalProperties": true,
+            "type": "object",
+            "title": "Input Schema",
+            "description": "Input schema"
+          },
+          "output_schema": {
+            "additionalProperties": true,
+            "type": "object",
+            "title": "Output Schema",
+            "description": "Output schema"
+          },
+          "stop_conditions": {
+            "items": {
+              "type": "string"
+            },
+            "type": "array",
+            "title": "Stop Conditions",
+            "description": "Stop conditions"
+          },
+          "source_file": {
+            "type": "string",
+            "title": "Source File",
+            "description": "Source file path"
+          },
+          "content_hash": {
+            "type": "string",
+            "title": "Content Hash",
+            "description": "Content hash"
+          }
+        },
+        "additionalProperties": false,
+        "type": "object",
+        "required": [
+          "name",
+          "agent_class",
+          "role",
+          "goal",
+          "permissions",
+          "source_file",
+          "content_hash"
+        ],
+        "title": "AgentResponse",
+        "description": "Response model for a single agent."
+      },
+      "AgentStatus": {
+        "type": "string",
+        "enum": [
+          "pending",
+          "running",
+          "completed",
+          "failed",
+          "stopped"
+        ],
+        "title": "AgentStatus",
+        "description": "Possible states of agent execution."
+      },
+      "ApiKeyHashRequest": {
+        "properties": {
+          "api_key": {
+            "type": "string",
+            "minLength": 1,
+            "title": "Api Key",
+            "description": "API key to hash"
+          }
+        },
+        "type": "object",
+        "required": [
+          "api_key"
+        ],
+        "title": "ApiKeyHashRequest",
+        "description": "Request body for API key hashing."
+      },
+      "ApiKeyHashResponse": {
+        "properties": {
+          "hash": {
+            "type": "string",
+            "title": "Hash",
+            "description": "SHA-256 HMAC hash of the API key"
+          }
+        },
+        "type": "object",
+        "required": [
+          "hash"
+        ],
+        "title": "ApiKeyHashResponse",
+        "description": "Response containing API key hash."
+      },
+      "ApiKeyValidateRequest": {
+        "properties": {
+          "api_key": {
+            "type": "string",
+            "minLength": 1,
+            "title": "Api Key",
+            "description": "API key to validate"
+          },
+          "stored_hash": {
+            "type": "string",
+            "minLength": 1,
+            "title": "Stored Hash",
+            "description": "Stored hash to validate against"
+          }
+        },
+        "type": "object",
+        "required": [
+          "api_key",
+          "stored_hash"
+        ],
+        "title": "ApiKeyValidateRequest",
+        "description": "Request body for API key validation."
+      },
+      "ApiKeyValidateResponse": {
+        "properties": {
+          "valid": {
+            "type": "boolean",
+            "title": "Valid",
+            "description": "Whether the API key is valid"
+          }
+        },
+        "type": "object",
+        "required": [
+          "valid"
+        ],
+        "title": "ApiKeyValidateResponse",
+        "description": "Response from API key validation."
+      },
+      "ChainCancelRequest": {
+        "properties": {
+          "reason": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Reason",
+            "description": "Optional reason for cancellation"
+          }
+        },
+        "additionalProperties": false,
+        "type": "object",
+        "title": "ChainCancelRequest",
+        "description": "Request to cancel a running chain."
+      },
+      "ChainExecuteRequest": {
+        "properties": {
+          "chain_type": {
+            "$ref": "#/components/schemas/ChainType",
+            "description": "Type of chain to execute"
+          },
+          "repository_root": {
+            "type": "string",
+            "title": "Repository Root",
+            "description": "Absolute path to the repository root"
+          },
+          "mode": {
+            "$ref": "#/components/schemas/ExecutionMode",
+            "description": "Execution mode",
+            "default": "dry_run"
+          },
+          "initial_state": {
+            "additionalProperties": true,
+            "type": "object",
+            "title": "Initial State",
+            "description": "Initial state for the chain"
+          },
+          "steps": {
+            "anyOf": [
+              {
+                "items": {
+                  "additionalProperties": true,
+                  "type": "object"
+                },
+                "type": "array"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Steps",
+            "description": "Custom chain steps (required for custom chains)"
+          },
+          "timeout_seconds": {
+            "anyOf": [
+              {
+                "type": "integer",
+                "maximum": 3600.0,
+                "minimum": 1.0
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Timeout Seconds",
+            "description": "Maximum execution time in seconds",
+            "default": 600
+          }
+        },
+        "additionalProperties": false,
+        "type": "object",
+        "required": [
+          "chain_type",
+          "repository_root"
+        ],
+        "title": "ChainExecuteRequest",
+        "description": "Request to execute a chain."
+      },
+      "ChainExecuteResponse": {
+        "properties": {
+          "chain_name": {
+            "type": "string",
+            "title": "Chain Name",
+            "description": "Chain name"
+          },
+          "status": {
+            "$ref": "#/components/schemas/ChainStopReason",
+            "description": "Chain completion status"
+          },
+          "completed_steps": {
+            "type": "integer",
+            "title": "Completed Steps",
+            "description": "Number of completed steps"
+          },
+          "total_steps": {
+            "type": "integer",
+            "title": "Total Steps",
+            "description": "Total number of steps"
+          },
+          "steps": {
+            "items": {
+              "$ref": "#/components/schemas/ChainStepResponse"
+            },
+            "type": "array",
+            "title": "Steps",
+            "description": "Individual step results"
+          },
+          "final_state": {
+            "additionalProperties": true,
+            "type": "object",
+            "title": "Final State",
+            "description": "Final chain state"
+          },
+          "execution_time_ms": {
+            "anyOf": [
+              {
+                "type": "number"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Execution Time Ms",
+            "description": "Total execution time"
+          },
+          "run_id": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Run Id",
+            "description": "Associated run ID"
+          },
+          "error": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Error",
+            "description": "Error if chain failed"
+          }
+        },
+        "additionalProperties": false,
+        "type": "object",
+        "required": [
+          "chain_name",
+          "status",
+          "completed_steps",
+          "total_steps",
+          "steps"
+        ],
+        "title": "ChainExecuteResponse",
+        "description": "Response model for chain execution."
+      },
+      "ChainListResponse": {
+        "properties": {
+          "chains": {
+            "items": {
+              "$ref": "#/components/schemas/ChainTypeInfo"
+            },
+            "type": "array",
+            "title": "Chains",
+            "description": "Available chain types"
+          }
+        },
+        "additionalProperties": false,
+        "type": "object",
+        "required": [
+          "chains"
+        ],
+        "title": "ChainListResponse",
+        "description": "Response model for listing available chains."
+      },
+      "ChainStepResponse": {
+        "properties": {
+          "agent_name": {
+            "type": "string",
+            "title": "Agent Name",
+            "description": "Agent name"
+          },
+          "status": {
+            "$ref": "#/components/schemas/AgentStatus",
+            "description": "Step status"
+          },
+          "output_key": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Output Key",
+            "description": "Output state key"
+          },
+          "execution_time_ms": {
+            "anyOf": [
+              {
+                "type": "number"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Execution Time Ms",
+            "description": "Execution time"
+          },
+          "error_message": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Error Message",
+            "description": "Error if failed"
+          }
+        },
+        "additionalProperties": false,
+        "type": "object",
+        "required": [
+          "agent_name",
+          "status"
+        ],
+        "title": "ChainStepResponse",
+        "description": "Response model for a single chain step."
+      },
+      "ChainStopReason": {
+        "type": "string",
+        "enum": [
+          "completed",
+          "agent_failed",
+          "precheck_failed",
+          "stop_condition",
+          "manual"
+        ],
+        "title": "ChainStopReason",
+        "description": "Reasons why a chain might stop."
+      },
+      "ChainType": {
+        "type": "string",
+        "enum": [
+          "discovery",
+          "security_scan",
+          "dependency_audit",
+          "doc_generation",
+          "tech_debt",
+          "full_analysis",
+          "custom"
+        ],
+        "title": "ChainType",
+        "description": "Predefined chain types."
+      },
+      "ChainTypeInfo": {
+        "properties": {
+          "name": {
+            "type": "string",
+            "title": "Name",
+            "description": "Chain name"
+          },
+          "description": {
+            "type": "string",
+            "title": "Description",
+            "description": "Chain description"
+          },
+          "step_count": {
+            "type": "integer",
+            "title": "Step Count",
+            "description": "Number of steps"
+          },
+          "steps": {
+            "items": {
+              "type": "string"
+            },
+            "type": "array",
+            "title": "Steps",
+            "description": "Agent names in sequence"
+          }
+        },
+        "additionalProperties": false,
+        "type": "object",
+        "required": [
+          "name",
+          "description",
+          "step_count",
+          "steps"
+        ],
+        "title": "ChainTypeInfo",
+        "description": "Information about a predefined chain type."
+      },
+      "ExecutionMode": {
+        "type": "string",
+        "enum": [
+          "dry_run",
+          "simulated",
+          "live"
+        ],
+        "title": "ExecutionMode",
+        "description": "Execution mode for agents and chains."
+      },
+      "HTTPValidationError": {
+        "properties": {
+          "detail": {
+            "items": {
+              "$ref": "#/components/schemas/ValidationError"
+            },
+            "type": "array",
+            "title": "Detail"
+          }
+        },
+        "type": "object",
+        "title": "HTTPValidationError"
+      },
+      "HealthResponse": {
+        "properties": {
+          "status": {
+            "type": "string",
+            "title": "Status",
+            "description": "Health status"
+          },
+          "version": {
+            "type": "string",
+            "title": "Version",
+            "description": "API version"
+          },
+          "timestamp": {
+            "type": "string",
+            "title": "Timestamp",
+            "description": "Check timestamp"
+          },
+          "components": {
+            "additionalProperties": {
+              "type": "string"
+            },
+            "type": "object",
+            "title": "Components",
+            "description": "Component statuses"
+          }
+        },
+        "additionalProperties": false,
+        "type": "object",
+        "required": [
+          "status",
+          "version",
+          "timestamp"
+        ],
+        "title": "HealthResponse",
+        "description": "Response model for health check."
+      },
+      "RegistryEntityRequest": {
+        "properties": {
+          "entity_type": {
+            "type": "string",
+            "title": "Entity Type",
+            "description": "Type of entity (e.g., 'repository', 'agent', 'finding')",
+            "examples": [
+              "repository"
+            ]
+          },
+          "entity_id": {
+            "type": "string",
+            "title": "Entity Id",
+            "description": "Unique identifier for the entity",
+            "examples": [
+              "repo_abc123"
+            ]
+          },
+          "data": {
+            "additionalProperties": true,
+            "type": "object",
+            "title": "Data",
+            "description": "Entity data"
+          },
+          "metadata": {
+            "anyOf": [
+              {
+                "additionalProperties": true,
+                "type": "object"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Metadata",
+            "description": "Optional metadata"
+          }
+        },
+        "additionalProperties": false,
+        "type": "object",
+        "required": [
+          "entity_type",
+          "entity_id",
+          "data"
+        ],
+        "title": "RegistryEntityRequest",
+        "description": "Request to create or update a registry entity."
+      },
+      "RegistryEntityResponse": {
+        "properties": {
+          "entity_id": {
+            "type": "string",
+            "title": "Entity Id",
+            "description": "Entity identifier"
+          },
+          "entity_type": {
+            "type": "string",
+            "title": "Entity Type",
+            "description": "Entity type"
+          },
+          "data": {
+            "additionalProperties": true,
+            "type": "object",
+            "title": "Data",
+            "description": "Entity data"
+          },
+          "created_at": {
+            "type": "string",
+            "title": "Created At",
+            "description": "Creation timestamp"
+          },
+          "updated_at": {
+            "type": "string",
+            "title": "Updated At",
+            "description": "Last update timestamp"
+          },
+          "checksum": {
+            "type": "string",
+            "title": "Checksum",
+            "description": "Data integrity checksum"
+          },
+          "metadata": {
+            "additionalProperties": true,
+            "type": "object",
+            "title": "Metadata",
+            "description": "Entity metadata"
+          }
+        },
+        "additionalProperties": false,
+        "type": "object",
+        "required": [
+          "entity_id",
+          "entity_type",
+          "data",
+          "created_at",
+          "updated_at",
+          "checksum"
+        ],
+        "title": "RegistryEntityResponse",
+        "description": "Response model for a registry entity."
+      },
+      "RegistryListResponse": {
+        "properties": {
+          "entities": {
+            "items": {
+              "$ref": "#/components/schemas/RegistryEntityResponse"
+            },
+            "type": "array",
+            "title": "Entities",
+            "description": "List of entities"
+          },
+          "entity_type": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Entity Type",
+            "description": "Entity type filter"
+          },
+          "total": {
+            "type": "integer",
+            "title": "Total",
+            "description": "Total count"
+          },
+          "limit": {
+            "type": "integer",
+            "title": "Limit",
+            "description": "Response limit"
+          },
+          "offset": {
+            "type": "integer",
+            "title": "Offset",
+            "description": "Response offset"
+          }
+        },
+        "additionalProperties": false,
+        "type": "object",
+        "required": [
+          "entities",
+          "total",
+          "limit",
+          "offset"
+        ],
+        "title": "RegistryListResponse",
+        "description": "Response model for listing registry entities."
+      },
+      "RegistryOperationResponse": {
+        "properties": {
+          "status": {
+            "type": "string",
+            "title": "Status",
+            "description": "Operation status"
+          },
+          "operation": {
+            "type": "string",
+            "title": "Operation",
+            "description": "Operation performed"
+          },
+          "entity_type": {
+            "type": "string",
+            "title": "Entity Type",
+            "description": "Entity type"
+          },
+          "entity_id": {
+            "type": "string",
+            "title": "Entity Id",
+            "description": "Entity ID"
+          },
+          "audit_ref": {
+            "type": "string",
+            "title": "Audit Ref",
+            "description": "Audit log reference"
+          },
+          "checksum": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Checksum",
+            "description": "Entity checksum after operation"
+          },
+          "error": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Error",
+            "description": "Error message if failed"
+          }
+        },
+        "additionalProperties": false,
+        "type": "object",
+        "required": [
+          "status",
+          "operation",
+          "entity_type",
+          "entity_id",
+          "audit_ref"
+        ],
+        "title": "RegistryOperationResponse",
+        "description": "Response model for registry operations."
+      },
+      "RegistryUpdateRequest": {
+        "properties": {
+          "data": {
+            "additionalProperties": true,
+            "type": "object",
+            "title": "Data",
+            "description": "Updated entity data"
+          },
+          "merge": {
+            "type": "boolean",
+            "title": "Merge",
+            "description": "Merge with existing data (true) or replace (false)",
+            "default": true
+          }
+        },
+        "additionalProperties": false,
+        "type": "object",
+        "required": [
+          "data"
+        ],
+        "title": "RegistryUpdateRequest",
+        "description": "Request to update a registry entity."
+      },
+      "RunDetail": {
+        "properties": {
+          "run_id": {
+            "type": "string",
+            "title": "Run Id",
+            "description": "Unique run identifier"
+          },
+          "chain_name": {
+            "type": "string",
+            "title": "Chain Name",
+            "description": "Chain name"
+          },
+          "repository_root": {
+            "type": "string",
+            "title": "Repository Root",
+            "description": "Repository root path"
+          },
+          "status": {
+            "$ref": "#/components/schemas/RunStatus",
+            "description": "Run status"
+          },
+          "started_at": {
+            "type": "string",
+            "title": "Started At",
+            "description": "Start timestamp"
+          },
+          "completed_at": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Completed At",
+            "description": "Completion timestamp"
+          },
+          "execution_time_ms": {
+            "anyOf": [
+              {
+                "type": "number"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Execution Time Ms",
+            "description": "Execution time"
+          },
+          "agent_results": {
+            "items": {
+              "additionalProperties": true,
+              "type": "object"
+            },
+            "type": "array",
+            "title": "Agent Results",
+            "description": "Agent results"
+          },
+          "final_state": {
+            "additionalProperties": true,
+            "type": "object",
+            "title": "Final State",
+            "description": "Final state"
+          },
+          "error": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Error",
+            "description": "Error message if failed"
+          }
+        },
+        "additionalProperties": false,
+        "type": "object",
+        "required": [
+          "run_id",
+          "chain_name",
+          "repository_root",
+          "status",
+          "started_at"
+        ],
+        "title": "RunDetail",
+        "description": "Detailed information for a chain run."
+      },
+      "RunListResponse": {
+        "properties": {
+          "runs": {
+            "items": {
+              "$ref": "#/components/schemas/RunSummary"
+            },
+            "type": "array",
+            "title": "Runs",
+            "description": "List of run summaries"
+          },
+          "total": {
+            "type": "integer",
+            "title": "Total",
+            "description": "Total count matching filters"
+          },
+          "limit": {
+            "type": "integer",
+            "title": "Limit",
+            "description": "Response limit"
+          },
+          "offset": {
+            "type": "integer",
+            "title": "Offset",
+            "description": "Response offset"
+          }
+        },
+        "additionalProperties": false,
+        "type": "object",
+        "required": [
+          "runs",
+          "total",
+          "limit",
+          "offset"
+        ],
+        "title": "RunListResponse",
+        "description": "Response model for listing runs."
+      },
+      "RunStatus": {
+        "type": "string",
+        "enum": [
+          "pending",
+          "running",
+          "completed",
+          "failed",
+          "cancelled"
+        ],
+        "title": "RunStatus",
+        "description": "Status of a chain run."
+      },
+      "RunSummary": {
+        "properties": {
+          "run_id": {
+            "type": "string",
+            "title": "Run Id",
+            "description": "Unique run identifier"
+          },
+          "chain_name": {
+            "type": "string",
+            "title": "Chain Name",
+            "description": "Chain name"
+          },
+          "repository": {
+            "type": "string",
+            "title": "Repository",
+            "description": "Repository name"
+          },
+          "status": {
+            "$ref": "#/components/schemas/RunStatus",
+            "description": "Run status"
+          },
+          "started_at": {
+            "type": "string",
+            "title": "Started At",
+            "description": "Start timestamp"
+          },
+          "completed_at": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Completed At",
+            "description": "Completion timestamp"
+          },
+          "duration_ms": {
+            "anyOf": [
+              {
+                "type": "number"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Duration Ms",
+            "description": "Duration in milliseconds"
+          }
+        },
+        "additionalProperties": false,
+        "type": "object",
+        "required": [
+          "run_id",
+          "chain_name",
+          "repository",
+          "status",
+          "started_at"
+        ],
+        "title": "RunSummary",
+        "description": "Summary information for a chain run."
+      },
+      "TokenRequest": {
+        "properties": {
+          "user_id": {
+            "type": "string",
+            "maxLength": 256,
+            "minLength": 1,
+            "title": "User Id",
+            "description": "User ID or identifier to include in the token"
+          },
+          "expiration_hours": {
+            "anyOf": [
+              {
+                "type": "number",
+                "maximum": 168.0,
+                "minimum": 0.1
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Expiration Hours",
+            "description": "Token expiration time in hours (default: 24, max: 168)",
+            "default": 24.0
+          },
+          "scope": {
+            "anyOf": [
+              {
+                "type": "string",
+                "maxLength": 256
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Scope",
+            "description": "Optional scope/permissions for the token"
+          }
+        },
+        "type": "object",
+        "required": [
+          "user_id"
+        ],
+        "title": "TokenRequest",
+        "description": "Request body for token generation."
+      },
+      "TokenResponse": {
+        "properties": {
+          "access_token": {
+            "type": "string",
+            "title": "Access Token",
+            "description": "JWT access token"
+          },
+          "token_type": {
+            "type": "string",
+            "title": "Token Type",
+            "description": "Token type (always Bearer)",
+            "default": "Bearer"
+          },
+          "expires_in": {
+            "type": "integer",
+            "title": "Expires In",
+            "description": "Token expiration time in seconds"
+          },
+          "user_id": {
+            "type": "string",
+            "title": "User Id",
+            "description": "User ID from the token subject"
+          }
+        },
+        "type": "object",
+        "required": [
+          "access_token",
+          "expires_in",
+          "user_id"
+        ],
+        "title": "TokenResponse",
+        "description": "Response containing generated token."
+      },
+      "TokenValidateRequest": {
+        "properties": {
+          "token": {
+            "type": "string",
+            "minLength": 1,
+            "title": "Token",
+            "description": "JWT token to validate"
+          }
+        },
+        "type": "object",
+        "required": [
+          "token"
+        ],
+        "title": "TokenValidateRequest",
+        "description": "Request body for token validation."
+      },
+      "TokenValidateResponse": {
+        "properties": {
+          "valid": {
+            "type": "boolean",
+            "title": "Valid",
+            "description": "Whether the token is valid"
+          },
+          "user_id": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "User Id",
+            "description": "User ID if token is valid"
+          },
+          "expires_at": {
+            "anyOf": [
+              {
+                "type": "integer"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Expires At",
+            "description": "Expiration timestamp if valid"
+          },
+          "error": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Error",
+            "description": "Error message if invalid"
+          }
+        },
+        "type": "object",
+        "required": [
+          "valid"
+        ],
+        "title": "TokenValidateResponse",
+        "description": "Response from token validation."
+      },
+      "ValidationError": {
+        "properties": {
+          "loc": {
+            "items": {
+              "anyOf": [
+                {
+                  "type": "string"
+                },
+                {
+                  "type": "integer"
+                }
+              ]
+            },
+            "type": "array",
+            "title": "Location"
+          },
+          "msg": {
+            "type": "string",
+            "title": "Message"
+          },
+          "type": {
+            "type": "string",
+            "title": "Error Type"
+          }
+        },
+        "type": "object",
+        "required": [
+          "loc",
+          "msg",
+          "type"
+        ],
+        "title": "ValidationError"
+      }
+    }
+  }
+}

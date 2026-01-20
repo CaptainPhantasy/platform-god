@@ -1,0 +1,102 @@
+# Platform God Development Configuration
+# Profile: dev
+#
+# This configuration is optimized for local development.
+# Features:
+# - Verbose logging
+# - Lower LLM temperature for more deterministic responses
+# - Localhost-only API access
+# - Shorter cache TTLs
+# - More frequent dashboard refresh
+
+version: 2.0
+profile: dev
+
+# Override values from pg.default.yaml
+llm:
+  temperature: 0.3
+  max_tokens: 4096
+  timeout_seconds: 60
+  cache:
+    enabled: true
+    ttl_seconds: 1800  # 30 minutes
+
+api:
+  host: 127.0.0.1
+  port: 8000
+  workers: 1
+  security:
+    cors:
+      allow_origins:
+        - http://localhost:3000
+        - http://localhost:5173
+        - http://127.0.0.1:3000
+        - http://127.0.0.1:5173
+    rate_limit:
+      enabled: false
+
+dashboard:
+  auto_refresh:
+    interval_seconds: 10
+  display:
+    show_timestamps: true
+    timezone: local
+
+notifications:
+  enabled: true
+  channels:
+    desktop:
+      enabled: true
+      sound: true
+  rules:
+    chain_completed:
+      enabled: true
+    chain_failed:
+      enabled: true
+
+audit:
+  scope:
+    api_requests: true
+  format:
+    include_user_agent: true
+  retention:
+    days: 30
+
+# Logging configuration for development
+logging:
+  version: 1
+  disable_existing_loggers: false
+
+  formatters:
+    detailed:
+      format: "%(asctime)s [%(levelname)s] %(name)s:%(lineno)d - %(funcName)s: %(message)s"
+      datefmt: "%Y-%m-%d %H:%M:%S"
+
+  handlers:
+    console:
+      class: logging.StreamHandler
+      level: DEBUG
+      formatter: detailed
+      stream: ext://sys.stdout
+
+  loggers:
+    platform_god:
+      level: DEBUG
+      handlers: [console]
+      propagate: false
+
+# Development-specific advanced settings
+advanced:
+  features:
+    experimental_agents: true
+    parallel_chain_execution: false
+    beta_dashboard: true
+    advanced_analytics: true
+
+  performance:
+    max_worker_threads: 4
+    max_memory_mb: 1024
+
+  security:
+    validate_input_schemas: true
+    allow_path_traversal: false

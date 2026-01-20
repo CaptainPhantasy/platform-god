@@ -1,0 +1,53 @@
+{
+    "@graph": [
+        {
+            "@id": "http://spdx.org/licenses/swrule",
+            "spdx:licenseText": "The style package is copyrighted but may be used and extended in any way, as long as a pointer to the original author is maintained. The author is not liable for any problem that may or may not result from using this package. Use at your own risk.\n",
+            "rdfs:seeAlso": "https://ctan.math.utah.edu/ctan/tex-archive/macros/generic/misc/swrule.sty",
+            "spdx:licenseTextHtml": "\n         <p>\n            The style package is copyrighted but may be used and extended\n            in any way, as long as a pointer to the original author is\n            maintained. The author is not liable for any problem that may\n            or may not result from using this package. Use at your own risk.\n         </p>\n\n      ",
+            "spdx:standardLicenseTemplate": "The style package is copyrighted but may be used and extended in any way, as long as a pointer to the original author is maintained. The author is not liable for any problem that may or may not result from using this package. Use at your own risk.\n\n",
+            "spdx:isDeprecatedLicenseId": {
+                "@value": "false",
+                "@type": "http://www.w3.org/2001/XMLSchema#boolean"
+            },
+            "spdx:crossRef": {
+                "@id": "_:f2c47e03-0485-4765-81d0-8da8719460a4"
+            },
+            "spdx:isOsiApproved": {
+                "@value": "false",
+                "@type": "http://www.w3.org/2001/XMLSchema#boolean"
+            },
+            "spdx:name": "swrule License",
+            "@type": "spdx:ListedLicense"
+        },
+        {
+            "@id": "_:f2c47e03-0485-4765-81d0-8da8719460a4",
+            "spdx:isWayBackLink": {
+                "@value": "false",
+                "@type": "http://www.w3.org/2001/XMLSchema#boolean"
+            },
+            "spdx:isValid": {
+                "@value": "true",
+                "@type": "http://www.w3.org/2001/XMLSchema#boolean"
+            },
+            "spdx:isLive": {
+                "@value": "true",
+                "@type": "http://www.w3.org/2001/XMLSchema#boolean"
+            },
+            "spdx:url": "https://ctan.math.utah.edu/ctan/tex-archive/macros/generic/misc/swrule.sty",
+            "spdx:timestamp": "2025-12-03T16:12:06Z",
+            "spdx:order": {
+                "@value": "0",
+                "@type": "http://www.w3.org/2001/XMLSchema#int"
+            },
+            "spdx:match": "false",
+            "@type": "spdx:CrossRef"
+        }
+    ],
+    "@context": {
+        "rdfs": "http://www.w3.org/2000/01/rdf-schema#",
+        "spdx": "http://spdx.org/rdf/terms#",
+        "doap": "http://usefulinc.com/ns/doap#",
+        "ptr": "http://www.w3.org/2009/pointers#"
+    }
+}

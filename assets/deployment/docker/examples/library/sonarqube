@@ -1,0 +1,69 @@
+Maintainers: Carmine Vassallo <carmine.vassallo@sonarsource.com> (@carminevassallo)
+GitRepo: https://github.com/SonarSource/docker-sonarqube.git
+Architectures: amd64, arm64v8
+Builder: buildkit
+
+Tags: 2025.6.1-developer, 2025.6-developer, developer
+Directory: commercial-editions/developer
+GitCommit: 25640e1874256746c8df7134fa5042f0721cc3f2
+GitFetch: refs/heads/release/2025.6
+
+Tags: 2025.6.1-enterprise, 2025.6-enterprise, enterprise
+Directory: commercial-editions/enterprise
+GitCommit: 25640e1874256746c8df7134fa5042f0721cc3f2
+GitFetch: refs/heads/release/2025.6
+
+Tags: 2025.6.1-datacenter-app, 2025.6-datacenter-app, datacenter-app
+Directory: commercial-editions/datacenter/app
+GitCommit: 25640e1874256746c8df7134fa5042f0721cc3f2
+GitFetch: refs/heads/release/2025.6
+
+Tags: 2025.6.1-datacenter-search, 2025.6-datacenter-search, datacenter-search
+Directory: commercial-editions/datacenter/search
+GitCommit: 25640e1874256746c8df7134fa5042f0721cc3f2
+GitFetch: refs/heads/release/2025.6
+
+Tags: 2025.4.4-developer, 2025.4-developer, 2025.4-lta-developer
+Directory: commercial-editions/developer
+GitCommit: b366d18634f02e45e6dc4d28151db6704b0630c8
+GitFetch: refs/heads/release/2025.4
+
+Tags: 2025.4.4-enterprise, 2025.4-enterprise, 2025.4-lta-enterprise
+Directory: commercial-editions/enterprise
+GitCommit: b366d18634f02e45e6dc4d28151db6704b0630c8
+GitFetch: refs/heads/release/2025.4
+
+Tags: 2025.4.4-datacenter-app, 2025.4-datacenter-app, 2025.4-lta-datacenter-app
+Directory: commercial-editions/datacenter/app
+GitCommit: b366d18634f02e45e6dc4d28151db6704b0630c8
+GitFetch: refs/heads/release/2025.4
+
+Tags: 2025.4.4-datacenter-search, 2025.4-datacenter-search, 2025.4-lta-datacenter-search
+Directory: commercial-editions/datacenter/search
+GitCommit: b366d18634f02e45e6dc4d28151db6704b0630c8
+GitFetch: refs/heads/release/2025.4
+
+Tags: 2025.1.5-developer, 2025.1-developer, 2025-lta-developer
+Directory: commercial-editions/developer
+GitCommit: f4734dd45fbe00d4ce4393fec3e3b833a601173c
+GitFetch: refs/heads/release/2025.1
+
+Tags: 2025.1.5-enterprise, 2025.1-enterprise, 2025-lta-enterprise
+Directory: commercial-editions/enterprise
+GitCommit: f4734dd45fbe00d4ce4393fec3e3b833a601173c
+GitFetch: refs/heads/release/2025.1
+
+Tags: 2025.1.5-datacenter-app, 2025.1-datacenter-app, 2025-lta-datacenter-app
+Directory: commercial-editions/datacenter/app
+GitCommit: f4734dd45fbe00d4ce4393fec3e3b833a601173c
+GitFetch: refs/heads/release/2025.1
+
+Tags: 2025.1.5-datacenter-search, 2025.1-datacenter-search, 2025-lta-datacenter-search
+Directory: commercial-editions/datacenter/search
+GitCommit: f4734dd45fbe00d4ce4393fec3e3b833a601173c
+GitFetch: refs/heads/release/2025.1
+
+Tags: 26.1.0.118079-community, community, latest
+Directory: community-build
+GitCommit: 892abf9355a52edda737d58809abfd436073e518
+GitFetch: refs/heads/master

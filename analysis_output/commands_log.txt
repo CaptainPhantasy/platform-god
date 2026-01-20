@@ -1,0 +1,46 @@
+Platform God Codebase Analysis - Commands Log
+==============================================
+
+Analysis started: 2026-01-20 17:34:09 EST
+Analysis completed: 2026-01-20 17:35:00 EST
+
+Commands executed:
+1. cd "/Volumes/Storage/PLATFORM GOD" && pwd && ls -la
+2. cd "/Volumes/Storage/PLATFORM GOD" && mkdir -p ./analysis_output
+3. cd "/Volumes/Storage/PLATFORM GOD" && find . -maxdepth 2 -type d | grep -v ".venv" | sort
+4. cd "/Volumes/Storage/PLATFORM GOD" && du -sh * .* 2>/dev/null | sort -h | tail -30
+5. cd "/Volumes/Storage/PLATFORM GOD" && find ./src -type f -name "*.py" | head -100
+6. cd "/Volumes/Storage/PLATFORM GOD" && ls -la tests/
+7. cd "/Volumes/Storage/PLATFORM GOD" && ls -la prompts/agents/
+8. cd "/Volumes/Storage/PLATFORM GOD" && find ./src/platform_god -name "*.py" | head -80
+
+Files read:
+- README.md
+- pyproject.toml
+- SECURITY.md
+- src/platform_god/__init__.py
+- src/platform_god/cli.py
+- src/platform_god/api/app.py
+- src/platform_god/agents/registry.py
+- src/platform_god/agents/executor.py
+- src/platform_god/orchestrator/core.py
+- src/platform_god/state/manager.py
+- src/platform_god/api/middleware/auth.py
+- src/platform_god/api/middleware/rate_limit.py
+- src/platform_god/api/middleware/size_limit.py
+- src/platform_god/api/middleware/validation.py
+- src/platform_god/llm/client.py
+- src/platform_god/api/auth/jwt.py
+- src/platform_god/registry/storage.py
+- src/platform_god/api/routes/agents.py
+- src/platform_god/core/exceptions.py
+- src/platform_god/automations/models.py
+- src/platform_god/monitoring/health.py
+- tests/test_auth_jwt.py
+- Dockerfile
+- .github/workflows/ci.yml
+- .github/workflows/test.yml
+- docker-compose.yml
+- prompts/agents/PG_DISCOVERY_AGENT.md
+
+All analysis completed successfully.

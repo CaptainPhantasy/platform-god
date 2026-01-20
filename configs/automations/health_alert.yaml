@@ -1,0 +1,55 @@
+# Example Automation: Health Score Alert
+#
+# This automation triggers when repository health score drops below threshold
+# and sends a notification with analysis results.
+
+name: health_score_alert
+description: Alert when repository health score drops below threshold
+version: "1.0"
+status: enabled
+
+trigger:
+  type: condition
+  condition:
+    metric_path: $.metrics.health_score
+    operator: lt
+    threshold: 50
+    check_interval_seconds: 300  # Check every 5 minutes
+  cooldown_seconds: 3600  # Don't alert more than once per hour
+  max_executions: 10  # Stop after 10 alerts
+
+actions:
+  - type: execute_chain
+    name: analyze_repository
+    parameters:
+      chain: tech_debt
+      repository_root: "{repository_root}"
+      mode: dry_run
+    continue_on_failure: false
+    retry_count: 1
+    retry_delay_seconds: 10
+    timeout_seconds: 300
+
+  - type: send_notification
+    name: notify_team
+    parameters:
+      message: "Health score {metrics.health_score} detected for repository {repository_root}. Running technical debt analysis..."
+      level: warning
+      channels: [log, registry]
+    continue_on_failure: true
+
+  - type: create_artifact
+    name: save_report
+    parameters:
+      artifact_type: health_report
+      filename: "health_alert_{timestamp}.json"
+      content: |
+        {{
+          "automation": "health_score_alert",
+          "triggered_at": "{timestamp}",
+          "repository": "{repository_root}",
+          "health_score": "{metrics.health_score}",
+          "status": "alert_triggered"
+        }}
+      register_in_registry: true
+    continue_on_failure: true

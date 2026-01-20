@@ -1,0 +1,44 @@
+# Example Automation: Daily Security Scan
+#
+# This automation runs a security scan every day at 2 AM.
+
+name: daily_security_scan
+description: Run daily security scan on repository
+version: "1.0"
+status: enabled
+
+trigger:
+  type: time
+  time:
+    cron_expression: "0 2 * * *"  # 2 AM every day
+    timezone_str: "UTC"
+  cooldown_seconds: 82800  # 23 hours
+
+actions:
+  - type: execute_chain
+    name: security_scan
+    parameters:
+      chain: security
+      repository_root: "{repository_root}"
+      mode: live
+    continue_on_failure: false
+    timeout_seconds: 600
+
+  - type: create_artifact
+    name: save_security_report
+    parameters:
+      artifact_type: security_report
+      filename: "security_scan_{date}.json"
+      register_in_registry: true
+    continue_on_failure: true
+
+  - type: update_registry
+    name: update_last_scan
+    parameters:
+      entity_type: scan_metadata
+      entity_id: "last_security_scan"
+      operation: update
+      data:
+        last_scan_at: "{timestamp}"
+        scan_type: daily_security
+    continue_on_failure: true

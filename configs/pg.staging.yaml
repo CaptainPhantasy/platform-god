@@ -1,0 +1,138 @@
+# Platform God Staging Configuration
+# Profile: staging
+#
+# This configuration is for pre-production testing.
+# Features:
+# - Production-like settings with relaxed rate limits
+# - Extended timeouts for thorough testing
+# - Multi-worker API
+# - Webhook/Slack notifications enabled
+# - Full audit logging
+
+version: 2.0
+profile: staging
+
+# Override values from pg.default.yaml
+llm:
+  temperature: 0.0
+  max_tokens: 8192
+  timeout_seconds: 180
+  max_retries: 3
+  cache:
+    enabled: true
+    ttl_seconds: 3600  # 1 hour
+
+api:
+  host: 0.0.0.0
+  port: 8000
+  workers: 2
+  security:
+    enabled: true
+    cors:
+      allow_origins:
+        - https://staging.example.com
+        - https://staging-ui.example.com
+    rate_limit:
+      enabled: true
+      requests_per_minute: 60
+      burst: 20
+
+registry:
+  performance:
+    entity_cache_size: 2000
+  entities:
+    retention_days: 60
+
+dashboard:
+  auto_refresh:
+    interval_seconds: 30
+  display:
+    timezone: UTC
+
+notifications:
+  enabled: true
+  channels:
+    desktop:
+      enabled: false
+    webhook:
+      enabled: true
+      # Set via environment: PG_WEBHOOK_URL
+      retry_attempts: 3
+    slack:
+      enabled: true
+      # Set via environment: PG_SLACK_WEBHOOK_URL
+      channel: "#platform-god-staging"
+  rules:
+    chain_completed:
+      enabled: true
+      channels: ["webhook"]
+      include_summary: true
+    chain_failed:
+      enabled: true
+      channels: ["webhook", "slack"]
+      include_error_details: true
+    agent_timeout:
+      enabled: true
+      channels: ["slack"]
+      timeout_seconds: 300
+    security_event:
+      enabled: true
+      channels: ["webhook", "slack"]
+
+audit:
+  enabled: true
+  scope:
+    api_requests: true
+    registry_operations: true
+    chain_executions: true
+    agent_executions: true
+    write_operations: true
+    auth_events: true
+    security_events: true
+  retention:
+    days: 90
+    archive_after_days: 30
+
+# Logging configuration for staging
+logging:
+  version: 1
+  disable_existing_loggers: false
+
+  formatters:
+    json:
+      "()": "pythonjsonlogger.jsonlogger.JsonFormatter"
+      format: "%(asctime)s %(name)s %(levelname)s %(message)s"
+
+  handlers:
+    console:
+      class: logging.StreamHandler
+      level: INFO
+      formatter: json
+      stream: ext://sys.stdout
+
+  loggers:
+    platform_god:
+      level: INFO
+      handlers: [console]
+      propagate: false
+
+# Staging-specific advanced settings
+advanced:
+  features:
+    experimental_agents: false
+    parallel_chain_execution: true
+    beta_dashboard: true
+    advanced_analytics: true
+
+  performance:
+    max_worker_threads: 8
+    max_memory_mb: 2048
+
+  security:
+    validate_input_schemas: true
+    detect_secrets_in_output: true
+
+  telemetry:
+    enabled: true
+    include_system_info: true
+    include_usage_stats: false

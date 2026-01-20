@@ -1,0 +1,11 @@
+Maintainers: Emmanuel Duchastenier <emmanuel.duchastenier@bonitasoft.org> (@educhastenier),
+             Anthony Birembaut <anthony.birembaut@bonitasoft.org> (@abirembaut),
+             Romain Bioteau <romain.bioteau@bonitasoft.org> (@rbioteau),
+             Adrien Kantcheff <adrien.kantcheff@bonitasoft.org> (@akantcheff)
+GitRepo: https://github.com/bonitasoft/bonita-distrib.git
+Directory: docker
+
+Tags: 2025.2-u0, 2025.2, 10.4.0, 10.4, latest
+Architectures: amd64
+GitFetch: refs/heads/docker/2025.2
+GitCommit: d8bad3922968e531a671f74c0973f2d49d9c7457
